@@ -23,6 +23,7 @@ func main() {
 	udb := users.NewUserDb()
 
 	r.Mount(routes.SignUpURLRoute, routes.SignUpRouter(udb))
+	r.Mount(routes.LoginURLRoute, routes.LoginRouter(udb))
 	r.Mount(routes.UsersURLRoute, routes.UsersRouter(udb))
 
 	fmt.Printf("Starting server on port 3000...\n")

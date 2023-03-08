@@ -21,7 +21,7 @@ func TestAddUser_InvalidPassword(t *testing.T) {
 
 	udb := NewUserDb()
 	_, err := udb.AddUser("foo", "")
-	assert.Equal(err, ErrInvalidPasswordName)
+	assert.Equal(err, ErrInvalidPassword)
 }
 
 func TestAddUser(t *testing.T) {
@@ -90,6 +90,42 @@ func TestGetUser(t *testing.T) {
 	id, _ := udb.AddUser("foo", "haha")
 
 	user, err := udb.GetUser(id)
+	assert.Nil(err)
+
+	assert.Equal(user.ID, id)
+	assert.Equal(user.Name, "foo")
+	assert.Equal(user.Password, "haha")
+}
+
+func TestGetUserFromName_NoUsers(t *testing.T) {
+	assert := assert.New(t)
+
+	udb := NewUserDb()
+
+	_, err := udb.GetUserFromName("foo")
+	assert.Equal(err, ErrNoSuchUser)
+}
+
+func TestGetUserFromname_WrongName(t *testing.T) {
+	assert := assert.New(t)
+
+	udb := NewUserDb()
+	udb.AddUser("foo", "haha")
+
+	_, err := udb.GetUserFromName("")
+	assert.Equal(err, ErrNoSuchUser)
+
+	_, err = udb.GetUserFromName("food")
+	assert.Equal(err, ErrNoSuchUser)
+}
+
+func TestGetUserFromName(t *testing.T) {
+	assert := assert.New(t)
+
+	udb := NewUserDb()
+	id, _ := udb.AddUser("foo", "haha")
+
+	user, err := udb.GetUserFromName("foo")
 	assert.Nil(err)
 
 	assert.Equal(user.ID, id)
