@@ -11,3 +11,6 @@ A toy project for a go server: used to experiment with some construct to prepare
 - Compile and install: `make`.
 - Execute any application with `make run app_name`.
 
+# Learnings
+
+We used the [chi](https://github.com/go-chi/chi) router to handle the routing. This replaces [gorilla mux](https://github.com/gorilla/mux) as this one is now archived.

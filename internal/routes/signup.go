@@ -1,4 +1,4 @@
-package internal
+package routes
 
 import (
 	"context"
@@ -14,36 +14,37 @@ import (
 // https://mattermost.com/blog/how-to-build-an-authentication-microservice-in-golang-from-scratch/
 // This is why we expect the email and password to be provided as headers.
 
-var LoginURLRoute = "/login"
+var SignUpURLRoute = "/signup"
 
-type loginRequestData string
+type signUpRequestDataKeyType string
 
-var loginRequestDataKey loginRequestData = "loginData"
+var signUpRequestDataKey signUpRequestDataKeyType = "signupData"
+
 var userHeaderKey = "User"
 var passwordHeaderKey = "Password"
 
-type loginRequest struct {
+type signUpRequest struct {
 	User     string
 	Password string
 }
 
-func buildLoginDataFromRequest(w http.ResponseWriter, r *http.Request) (loginRequest, bool) {
+func buildSignUpDataFromRequest(w http.ResponseWriter, r *http.Request) (signUpRequest, bool) {
 	var user, password string
 	var err error
 
 	user, err = rest.GetSingleHeaderFromRequest(r, userHeaderKey)
 	if err != nil {
-		http.Error(w, "No user provided in login request", http.StatusBadRequest)
-		return loginRequest{}, false
+		http.Error(w, "No user provided in sign up request", http.StatusBadRequest)
+		return signUpRequest{}, false
 	}
 
 	password, err = rest.GetSingleHeaderFromRequest(r, passwordHeaderKey)
 	if err != nil {
-		http.Error(w, "No password provided in login request", http.StatusBadRequest)
-		return loginRequest{}, false
+		http.Error(w, "No password provided in sign up request", http.StatusBadRequest)
+		return signUpRequest{}, false
 	}
 
-	req := loginRequest{
+	req := signUpRequest{
 		User:     user,
 		Password: password,
 	}
@@ -51,33 +52,33 @@ func buildLoginDataFromRequest(w http.ResponseWriter, r *http.Request) (loginReq
 	return req, true
 }
 
-func loginCtx(next http.Handler) http.Handler {
+func signUpCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		loginData, ok := buildLoginDataFromRequest(w, r)
+		signUpData, ok := buildSignUpDataFromRequest(w, r)
 		if !ok {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), loginRequestDataKey, loginData)
+		ctx := context.WithValue(r.Context(), signUpRequestDataKey, signUpData)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
-func LoginRouter(udb users.UserDb) http.Handler {
+func SignUpRouter(udb users.UserDb) http.Handler {
 	r := chi.NewRouter()
 
 	r.Route("/", func(r chi.Router) {
-		r.Use(loginCtx)
-		r.Get("/", generateLoginHandler(udb))
+		r.Use(signUpCtx)
+		r.Get("/", generateSignUpHandler(udb))
 	})
 
 	return r
 }
 
-func generateLoginHandler(udb users.UserDb) http.HandlerFunc {
+func generateSignUpHandler(udb users.UserDb) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		data, ok := ctx.Value(loginRequestDataKey).(loginRequest)
+		data, ok := ctx.Value(signUpRequestDataKey).(signUpRequest)
 		if !ok {
 			http.Error(w, http.StatusText(http.StatusUnprocessableEntity), http.StatusUnprocessableEntity)
 			return
