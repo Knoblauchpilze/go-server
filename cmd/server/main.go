@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/KnoblauchPilze/go-server/internal"
+	"github.com/KnoblauchPilze/go-server/internal/routes"
 	"github.com/KnoblauchPilze/go-server/pkg/users"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -22,7 +22,8 @@ func main() {
 
 	udb := users.NewUserDb()
 
-	r.Mount(internal.LoginURLRoute, internal.LoginRouter(udb))
+	r.Mount(routes.SignUpURLRoute, routes.SignUpRouter(udb))
+	r.Mount(routes.UsersURLRoute, routes.UsersRouter(udb))
 
 	fmt.Printf("Starting server on port 3000...\n")
 	http.ListenAndServe(":3000", r)
