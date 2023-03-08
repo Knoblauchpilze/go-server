@@ -10,10 +10,6 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// Some inspiration here:
-// https://mattermost.com/blog/how-to-build-an-authentication-microservice-in-golang-from-scratch/
-// This is why we expect the email and password to be provided as headers.
-
 var SignUpURLRoute = "/signup"
 
 type signUpRequestDataKeyType string
@@ -34,13 +30,13 @@ func buildSignUpDataFromRequest(w http.ResponseWriter, r *http.Request) (signUpR
 
 	user, err = rest.GetSingleHeaderFromRequest(r, userHeaderKey)
 	if err != nil {
-		http.Error(w, "No user provided in sign up request", http.StatusBadRequest)
+		http.Error(w, "no user provided in sign up request", http.StatusBadRequest)
 		return signUpRequest{}, false
 	}
 
 	password, err = rest.GetSingleHeaderFromRequest(r, passwordHeaderKey)
 	if err != nil {
-		http.Error(w, "No password provided in sign up request", http.StatusBadRequest)
+		http.Error(w, "no password provided in sign up request", http.StatusBadRequest)
 		return signUpRequest{}, false
 	}
 

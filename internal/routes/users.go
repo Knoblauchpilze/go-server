@@ -22,7 +22,7 @@ func userCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user := chi.URLParam(r, string(userIDDataKey))
 		if len(user) == 0 {
-			http.Error(w, "No user ID provided", http.StatusBadRequest)
+			http.Error(w, "no user ID provided", http.StatusBadRequest)
 			return
 		}
 
