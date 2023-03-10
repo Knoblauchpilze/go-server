@@ -2,13 +2,14 @@ package routes
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
+	"github.com/KnoblauchPilze/go-server/pkg/auth"
 	"github.com/KnoblauchPilze/go-server/pkg/rest"
 	"github.com/KnoblauchPilze/go-server/pkg/users"
 	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
 )
 
 // Some inspiration here:
@@ -17,37 +18,19 @@ import (
 
 var LoginURLRoute = "/login"
 
-type loginRequestDataKeyType string
+var loginRequestDataKey stringDataKeyType = "loginData"
 
-var loginRequestDataKey loginRequestDataKeyType = "loginData"
+var ErrAlreadyLoggedIn = fmt.Errorf("user already logged in")
 
-type loginRequest struct {
-	User     string
-	Password string
-}
-
-func buildLoginDataFromRequest(w http.ResponseWriter, r *http.Request) (loginRequest, bool) {
-	var user, password string
+func buildLoginDataFromRequest(w http.ResponseWriter, r *http.Request) (userData, bool) {
+	var data userData
 	var err error
 
-	user, err = rest.GetSingleHeaderFromRequest(r, userHeaderKey)
-	if err != nil {
-		http.Error(w, "no user provided in login request", http.StatusBadRequest)
-		return loginRequest{}, false
+	if err = rest.GetBodyFromRequestAs(r, &data); err != nil {
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
 	}
 
-	password, err = rest.GetSingleHeaderFromRequest(r, passwordHeaderKey)
-	if err != nil {
-		http.Error(w, "no password provided in login request", http.StatusBadRequest)
-		return loginRequest{}, false
-	}
-
-	req := loginRequest{
-		User:     user,
-		Password: password,
-	}
-
-	return req, true
+	return data, err == nil
 }
 
 func loginCtx(next http.Handler) http.Handler {
@@ -62,21 +45,21 @@ func loginCtx(next http.Handler) http.Handler {
 	})
 }
 
-func LoginRouter(udb users.UserDb) http.Handler {
+func LoginRouter(udb users.UserDb, tokens auth.Auth) http.Handler {
 	r := chi.NewRouter()
 
 	r.Route("/", func(r chi.Router) {
 		r.Use(loginCtx)
-		r.Post("/", generateLoginHandler(udb))
+		r.Post("/", generateLoginHandler(udb, tokens))
 	})
 
 	return r
 }
 
-func generateLoginHandler(udb users.UserDb) http.HandlerFunc {
+func generateLoginHandler(udb users.UserDb, tokens auth.Auth) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		data, ok := ctx.Value(loginRequestDataKey).(loginRequest)
+		data, ok := ctx.Value(loginRequestDataKey).(userData)
 		if !ok {
 			http.Error(w, http.StatusText(http.StatusUnprocessableEntity), http.StatusUnprocessableEntity)
 			return
@@ -93,12 +76,22 @@ func generateLoginHandler(udb users.UserDb) http.HandlerFunc {
 			return
 		}
 
-		token, err := uuid.NewUUID()
+		token, err := tokens.GenerateToken(user.ID, user.Password)
+		if err != nil {
+			if err == auth.ErrTokenAlreadyExists {
+				err = ErrAlreadyLoggedIn
+			}
+
+			http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
+			return
+		}
+
+		out, err := json.Marshal(token)
 		if err != nil {
 			rest.SetupInternalErrorResponseWithCause(w, err)
 			return
 		}
 
-		rest.SetupStringResponse(w, "{\"token\":\"%s\"}\n", token)
+		w.Write(out)
 	}
 }

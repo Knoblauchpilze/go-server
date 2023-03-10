@@ -12,40 +12,17 @@ import (
 
 var SignUpURLRoute = "/signup"
 
-type signUpRequestDataKeyType string
+var signUpRequestDataKey stringDataKeyType = "signupData"
 
-var signUpRequestDataKey signUpRequestDataKeyType = "signupData"
-
-var userHeaderKey = "User"
-var passwordHeaderKey = "Password"
-
-type signUpRequest struct {
-	User     string
-	Password string
-}
-
-func buildSignUpDataFromRequest(w http.ResponseWriter, r *http.Request) (signUpRequest, bool) {
-	var user, password string
+func buildSignUpDataFromRequest(w http.ResponseWriter, r *http.Request) (userData, bool) {
+	var data userData
 	var err error
 
-	user, err = rest.GetSingleHeaderFromRequest(r, userHeaderKey)
-	if err != nil {
-		http.Error(w, "no user provided in sign up request", http.StatusBadRequest)
-		return signUpRequest{}, false
+	if err = rest.GetBodyFromRequestAs(r, &data); err != nil {
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
 	}
 
-	password, err = rest.GetSingleHeaderFromRequest(r, passwordHeaderKey)
-	if err != nil {
-		http.Error(w, "no password provided in sign up request", http.StatusBadRequest)
-		return signUpRequest{}, false
-	}
-
-	req := signUpRequest{
-		User:     user,
-		Password: password,
-	}
-
-	return req, true
+	return data, err == nil
 }
 
 func signUpCtx(next http.Handler) http.Handler {
@@ -65,7 +42,7 @@ func SignUpRouter(udb users.UserDb) http.Handler {
 
 	r.Route("/", func(r chi.Router) {
 		r.Use(signUpCtx)
-		r.Get("/", generateSignUpHandler(udb))
+		r.Post("/", generateSignUpHandler(udb))
 	})
 
 	return r
@@ -74,7 +51,7 @@ func SignUpRouter(udb users.UserDb) http.Handler {
 func generateSignUpHandler(udb users.UserDb) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		data, ok := ctx.Value(signUpRequestDataKey).(signUpRequest)
+		data, ok := ctx.Value(signUpRequestDataKey).(userData)
 		if !ok {
 			http.Error(w, http.StatusText(http.StatusUnprocessableEntity), http.StatusUnprocessableEntity)
 			return
