@@ -2,10 +2,12 @@ package routes
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
 	"github.com/KnoblauchPilze/go-server/pkg/rest"
+	"github.com/KnoblauchPilze/go-server/pkg/types"
 	"github.com/KnoblauchPilze/go-server/pkg/users"
 	"github.com/go-chi/chi/v5"
 )
@@ -14,8 +16,8 @@ var SignUpURLRoute = "/signup"
 
 var signUpRequestDataKey stringDataKeyType = "signupData"
 
-func buildSignUpDataFromRequest(w http.ResponseWriter, r *http.Request) (userData, bool) {
-	var data userData
+func buildSignUpDataFromRequest(w http.ResponseWriter, r *http.Request) (types.UserData, bool) {
+	var data types.UserData
 	var err error
 
 	if err = rest.GetBodyFromRequestAs(r, &data); err != nil {
@@ -51,13 +53,13 @@ func SignUpRouter(udb users.UserDb) http.Handler {
 func generateSignUpHandler(udb users.UserDb) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		data, ok := ctx.Value(signUpRequestDataKey).(userData)
+		data, ok := ctx.Value(signUpRequestDataKey).(types.UserData)
 		if !ok {
 			http.Error(w, http.StatusText(http.StatusUnprocessableEntity), http.StatusUnprocessableEntity)
 			return
 		}
 
-		id, err := udb.AddUser(data.User, data.Password)
+		id, err := udb.AddUser(data.Name, data.Password)
 		if err != nil {
 			errCode := http.StatusBadRequest
 			if err == users.ErrUserCreationFailure {
@@ -68,6 +70,14 @@ func generateSignUpHandler(udb users.UserDb) http.HandlerFunc {
 			return
 		}
 
-		rest.SetupStringResponse(w, "{\"user\":\"%s\"}\n", id)
+		resp := types.SignUpResponse{
+			ID: id,
+		}
+		out, err := json.Marshal(resp)
+		if err != nil {
+			rest.SetupInternalErrorResponseWithCause(w, err)
+		}
+
+		w.Write(out)
 	}
 }
