@@ -61,6 +61,7 @@ func generateListUsersHandler(udb users.UserDb) http.HandlerFunc {
 			rest.SetupInternalErrorResponseWithCause(w, err)
 			return
 		}
+
 		w.Write(out)
 	}
 }

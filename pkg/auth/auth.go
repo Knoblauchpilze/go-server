@@ -9,14 +9,14 @@ import (
 )
 
 type Token struct {
-	ID         uuid.UUID
+	User       uuid.UUID
 	Value      string
 	Expiration time.Time
 }
 
 type Auth interface {
-	GenerateToken(id uuid.UUID, password string) (Token, error)
-	GetToken(id uuid.UUID) (Token, error)
+	GenerateToken(user uuid.UUID, password string) (Token, error)
+	GetToken(user uuid.UUID) (Token, error)
 }
 
 type AuthImpl struct {
@@ -37,7 +37,7 @@ func NewAuth() Auth {
 	}
 }
 
-func (auth *AuthImpl) GenerateToken(id uuid.UUID, password string) (Token, error) {
+func (auth *AuthImpl) GenerateToken(user uuid.UUID, password string) (Token, error) {
 	if len(password) == 0 {
 		return Token{}, ErrInvalidPassword
 	}
@@ -45,26 +45,26 @@ func (auth *AuthImpl) GenerateToken(id uuid.UUID, password string) (Token, error
 	auth.lock.Lock()
 	defer auth.lock.Unlock()
 
-	if _, ok := auth.tokens[id]; ok {
+	if _, ok := auth.tokens[user]; ok {
 		return Token{}, ErrTokenAlreadyExists
 	}
 
 	token := Token{
-		ID:         id,
+		User:       user,
 		Expiration: time.Now().Add(TokenDefaultExpirationTime),
 		Value:      "dummy-token",
 	}
 
-	auth.tokens[id] = token
+	auth.tokens[user] = token
 
 	return token, nil
 }
 
-func (auth *AuthImpl) GetToken(id uuid.UUID) (Token, error) {
+func (auth *AuthImpl) GetToken(user uuid.UUID) (Token, error) {
 	auth.lock.Lock()
 	defer auth.lock.Unlock()
 
-	token, ok := auth.tokens[id]
+	token, ok := auth.tokens[user]
 	if !ok {
 		return Token{}, ErrNoSuchToken
 	}
