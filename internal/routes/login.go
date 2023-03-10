@@ -8,6 +8,7 @@ import (
 
 	"github.com/KnoblauchPilze/go-server/pkg/auth"
 	"github.com/KnoblauchPilze/go-server/pkg/rest"
+	"github.com/KnoblauchPilze/go-server/pkg/types"
 	"github.com/KnoblauchPilze/go-server/pkg/users"
 	"github.com/go-chi/chi/v5"
 )
@@ -22,8 +23,8 @@ var loginRequestDataKey stringDataKeyType = "loginData"
 
 var ErrAlreadyLoggedIn = fmt.Errorf("user already logged in")
 
-func buildLoginDataFromRequest(w http.ResponseWriter, r *http.Request) (userData, bool) {
-	var data userData
+func buildLoginDataFromRequest(w http.ResponseWriter, r *http.Request) (types.UserData, bool) {
+	var data types.UserData
 	var err error
 
 	if err = rest.GetBodyFromRequestAs(r, &data); err != nil {
@@ -59,13 +60,13 @@ func LoginRouter(udb users.UserDb, tokens auth.Auth) http.Handler {
 func generateLoginHandler(udb users.UserDb, tokens auth.Auth) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		data, ok := ctx.Value(loginRequestDataKey).(userData)
+		data, ok := ctx.Value(loginRequestDataKey).(types.UserData)
 		if !ok {
 			http.Error(w, http.StatusText(http.StatusUnprocessableEntity), http.StatusUnprocessableEntity)
 			return
 		}
 
-		user, err := udb.GetUserFromName(data.User)
+		user, err := udb.GetUserFromName(data.Name)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
 			return
