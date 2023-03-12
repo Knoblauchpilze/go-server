@@ -2,13 +2,9 @@ package rest
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 )
-
-var ErrFailedToGetBody = fmt.Errorf("failed to get request body")
-var ErrBodyParsingFailed = fmt.Errorf("failed to parse request body")
 
 func GetBodyFromRequestAs(req *http.Request, out interface{}) error {
 	data, err := io.ReadAll(req.Body)

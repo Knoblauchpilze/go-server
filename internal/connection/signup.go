@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 
+	"github.com/KnoblauchPilze/go-server/pkg/rest"
 	"github.com/KnoblauchPilze/go-server/pkg/types"
 	"github.com/sirupsen/logrus"
 )
@@ -27,15 +27,10 @@ func SignUp(in types.UserData) (types.SignUpResponse, error) {
 		return types.SignUpResponse{}, ErrSignUpFailed
 	}
 
-	data, err = io.ReadAll(resp.Body)
-	if err != nil {
-		logrus.Errorf("Failed to read sign up response: %v", err)
-		return types.SignUpResponse{}, ErrSignUpFailed
-	}
-
 	var login types.SignUpResponse
-	if err = json.Unmarshal(data, &login); err != nil {
-		logrus.Errorf("Failed to parse sign up response: %v", err)
+	err = rest.GetBodyFromResponseAs(resp, &login)
+	if err != nil {
+		logrus.Errorf("Sign up request failed: %v", err)
 		return types.SignUpResponse{}, ErrSignUpFailed
 	}
 
