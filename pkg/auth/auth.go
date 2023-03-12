@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
@@ -23,11 +22,6 @@ type AuthImpl struct {
 	lock   sync.Mutex
 	tokens map[uuid.UUID]Token
 }
-
-var ErrInvalidPassword = fmt.Errorf("password is invalid")
-var ErrTokenAlreadyExists = fmt.Errorf("token already exists")
-var ErrTokenCreationFailure = fmt.Errorf("internal error while creating token")
-var ErrNoSuchToken = fmt.Errorf("no such token")
 
 var TokenDefaultExpirationTime = 1 * time.Minute
 

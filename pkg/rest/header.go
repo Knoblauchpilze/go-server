@@ -1,13 +1,8 @@
 package rest
 
 import (
-	"fmt"
 	"net/http"
 )
-
-var ErrNoSuchHeader = fmt.Errorf("no such header in request")
-
-var ErrNonUniqueHeader = fmt.Errorf("header is defined multiple times in request")
 
 func GetHeaderFromRequest(req *http.Request, headerKey string) ([]string, error) {
 	header, ok := req.Header[headerKey]

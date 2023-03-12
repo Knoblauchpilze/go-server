@@ -1,7 +1,6 @@
 package users
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/google/uuid"
@@ -26,12 +25,6 @@ type UserDbImpl struct {
 	ids   map[uuid.UUID]string
 	names map[string]uuid.UUID
 }
-
-var ErrUserAlreadyExists = fmt.Errorf("user already exists")
-var ErrInvalidUserName = fmt.Errorf("user name is invalid")
-var ErrInvalidPassword = fmt.Errorf("password is invalid")
-var ErrUserCreationFailure = fmt.Errorf("internal error while creating user")
-var ErrNoSuchUser = fmt.Errorf("no such user")
 
 func NewUserDb() UserDb {
 	return &UserDbImpl{
