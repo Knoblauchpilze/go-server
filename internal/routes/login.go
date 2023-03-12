@@ -87,7 +87,11 @@ func generateLoginHandler(udb users.UserDb, tokens auth.Auth) http.HandlerFunc {
 			return
 		}
 
-		out, err := json.Marshal(token)
+		resp := types.LoginResponse{
+			Token: token,
+		}
+
+		out, err := json.Marshal(resp)
 		if err != nil {
 			rest.SetupInternalErrorResponseWithCause(w, err)
 			return
