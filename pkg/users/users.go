@@ -4,7 +4,6 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
 )
 
 type User struct {
@@ -54,8 +53,6 @@ func (udb *UserDbImpl) AddUser(name string, password string) (uuid.UUID, error) 
 	if err != nil {
 		return uuid.UUID{}, ErrUserCreationFailure
 	}
-
-	logrus.Infof("user: %v, id: %v", name, id)
 
 	udb.users[name] = password
 	udb.ids[id] = name

@@ -1,7 +1,5 @@
 package main
 
-// TODO: Common response from the server with an error.
-
 import (
 	"fmt"
 	"net/http"
