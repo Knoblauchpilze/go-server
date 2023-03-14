@@ -24,8 +24,8 @@ type ServerResponse interface {
 type serverResponseImpl struct {
 	RequestID   uuid.UUID
 	Status      string
-	Details     json.RawMessage `json:",omitempty"`
 	Description string          `json:",omitempty"`
+	Details     json.RawMessage `json:",omitempty"`
 	code        int
 }
 
