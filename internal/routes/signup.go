@@ -2,7 +2,6 @@ package routes
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -34,7 +33,7 @@ func SignUpRouter(udb users.UserDb) http.Handler {
 	r := chi.NewRouter()
 
 	r.Route("/", func(r chi.Router) {
-		r.Use(signUpCtx)
+		r.Use(requestCtx, signUpCtx)
 		r.Post("/", generateSignUpHandler(udb))
 	})
 
@@ -43,10 +42,13 @@ func SignUpRouter(udb users.UserDb) http.Handler {
 
 func generateSignUpHandler(udb users.UserDb) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		resp := buildServerResponseFromHttpRequest(r)
+
 		ctx := r.Context()
 		data, ok := ctx.Value(signUpRequestDataKey).(types.UserData)
 		if !ok {
-			http.Error(w, http.StatusText(http.StatusUnprocessableEntity), http.StatusUnprocessableEntity)
+			resp.WithCodeAndDescription(http.StatusUnprocessableEntity)
+			resp.Write(w)
 			return
 		}
 
@@ -57,18 +59,16 @@ func generateSignUpHandler(udb users.UserDb) http.HandlerFunc {
 				errCode = http.StatusInternalServerError
 			}
 
-			http.Error(w, fmt.Sprintf("%v", err), errCode)
+			resp.WithCodeAndDescription(errCode)
+			resp.WithDetails(err)
+			resp.Write(w)
 			return
 		}
 
-		resp := types.SignUpResponse{
+		out := types.SignUpResponse{
 			ID: id,
 		}
-		out, err := json.Marshal(resp)
-		if err != nil {
-			rest.SetupInternalErrorResponseWithCause(w, err)
-		}
-
-		w.Write(out)
+		resp.WithDetails(out)
+		resp.Write(w)
 	}
 }

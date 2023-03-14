@@ -74,3 +74,29 @@ func TestServerResponse_WithDetails(t *testing.T) {
 	assert.Equal(string(out), expected)
 	assert.Nil(err)
 }
+
+func TestServerResponse_Pass(t *testing.T) {
+	assert := assert.New(t)
+
+	id, _ := uuid.Parse(dummyID)
+	resp := NewErrorResponse(id)
+	resp.Pass()
+	out, err := json.Marshal(resp)
+
+	expected := fmt.Sprintf("{\"RequestID\":\"%s\",\"Status\":\"%v\"}", dummyID, StatusOK)
+	assert.Equal(string(out), expected)
+	assert.Nil(err)
+}
+
+func TestServerResponse_Fail(t *testing.T) {
+	assert := assert.New(t)
+
+	id, _ := uuid.Parse(dummyID)
+	resp := NewSuccessResponse(id)
+	resp.Fail()
+	out, err := json.Marshal(resp)
+
+	expected := fmt.Sprintf("{\"RequestID\":\"%s\",\"Status\":\"%v\"}", dummyID, StatusNOK)
+	assert.Equal(string(out), expected)
+	assert.Nil(err)
+}

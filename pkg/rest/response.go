@@ -2,14 +2,11 @@ package rest
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 
 	"github.com/sirupsen/logrus"
 )
-
-var genericMarshalDataError = "Failed to marshal user data"
 
 func GetBodyFromHttpResponseAs(resp *http.Response, out interface{}) error {
 	if resp == nil {
@@ -33,19 +30,4 @@ func GetBodyFromHttpResponseAs(resp *http.Response, out interface{}) error {
 	}
 
 	return nil
-}
-
-func SetupStringResponse(w http.ResponseWriter, format string, a ...any) {
-	out := []byte(fmt.Sprintf(format, a...))
-	w.Write(out)
-}
-
-func SetupInternalErrorResponse(w http.ResponseWriter) {
-	out := []byte(genericMarshalDataError)
-	w.Write(out)
-}
-
-func SetupInternalErrorResponseWithCause(w http.ResponseWriter, cause interface{}) {
-	out := []byte(fmt.Sprintf("%s (cause: %v)", genericMarshalDataError, cause))
-	w.Write(out)
 }
