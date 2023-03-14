@@ -23,21 +23,12 @@ var loginRequestDataKey stringDataKeyType = "loginData"
 
 var ErrAlreadyLoggedIn = fmt.Errorf("user already logged in")
 
-func buildLoginDataFromRequest(w http.ResponseWriter, r *http.Request) (types.UserData, bool) {
-	var data types.UserData
-	var err error
-
-	if err = rest.GetBodyFromRequestAs(r, &data); err != nil {
-		http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
-	}
-
-	return data, err == nil
-}
-
 func loginCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		loginData, ok := buildLoginDataFromRequest(w, r)
-		if !ok {
+		var loginData types.UserData
+
+		if err := rest.GetBodyFromHttpRequestAs(r, &loginData); err != nil {
+			http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
 			return
 		}
 

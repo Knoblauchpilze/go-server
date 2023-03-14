@@ -28,7 +28,7 @@ func SignUp(in types.UserData) (types.SignUpResponse, error) {
 	}
 
 	var login types.SignUpResponse
-	err = rest.GetBodyFromResponseAs(resp, &login)
+	err = rest.GetBodyFromHttpResponseAs(resp, &login)
 	if err != nil {
 		logrus.Errorf("Sign up request failed: %v", err)
 		return types.SignUpResponse{}, ErrSignUpFailed
