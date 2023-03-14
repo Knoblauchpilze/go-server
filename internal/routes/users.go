@@ -2,11 +2,9 @@ package routes
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 
-	"github.com/KnoblauchPilze/go-server/pkg/rest"
 	"github.com/KnoblauchPilze/go-server/pkg/users"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -54,39 +52,35 @@ func UsersRouter(udb users.UserDb) http.Handler {
 
 func generateListUsersHandler(udb users.UserDb) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		resp := buildServerResponseFromHttpRequest(r)
+
 		people := udb.GetUsers()
-
-		out, err := json.Marshal(people)
-		if err != nil {
-			rest.SetupInternalErrorResponseWithCause(w, err)
-			return
-		}
-
-		w.Write(out)
+		resp.WithDetails(people)
+		resp.Write(w)
 	}
 }
 
 func generateUsersHandler(udb users.UserDb) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		resp := buildServerResponseFromHttpRequest(r)
+
 		ctx := r.Context()
 		id, ok := ctx.Value(userIDDataKey).(uuid.UUID)
 		if !ok {
-			http.Error(w, http.StatusText(http.StatusUnprocessableEntity), http.StatusUnprocessableEntity)
+			resp.WithCodeAndDescription(http.StatusUnprocessableEntity)
+			resp.Write(w)
 			return
 		}
 
 		userData, err := udb.GetUser(id)
 		if err != nil {
-			http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
+			resp.WithCodeAndDescription(http.StatusBadRequest)
+			resp.WithDetails(err)
+			resp.Write(w)
 			return
 		}
 
-		out, err := json.Marshal(userData)
-		if err != nil {
-			rest.SetupInternalErrorResponseWithCause(w, err)
-			return
-		}
-
-		w.Write(out)
+		resp.WithDetails(userData)
+		resp.Write(w)
 	}
 }

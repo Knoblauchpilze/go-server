@@ -2,7 +2,6 @@ package routes
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -41,7 +40,7 @@ func LoginRouter(udb users.UserDb, tokens auth.Auth) http.Handler {
 	r := chi.NewRouter()
 
 	r.Route("/", func(r chi.Router) {
-		r.Use(loginCtx)
+		r.Use(requestCtx, loginCtx)
 		r.Post("/", generateLoginHandler(udb, tokens))
 	})
 
@@ -50,21 +49,28 @@ func LoginRouter(udb users.UserDb, tokens auth.Auth) http.Handler {
 
 func generateLoginHandler(udb users.UserDb, tokens auth.Auth) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		resp := buildServerResponseFromHttpRequest(r)
+
 		ctx := r.Context()
 		data, ok := ctx.Value(loginRequestDataKey).(types.UserData)
 		if !ok {
-			http.Error(w, http.StatusText(http.StatusUnprocessableEntity), http.StatusUnprocessableEntity)
+			resp.WithCodeAndDescription(http.StatusUnprocessableEntity)
+			resp.Write(w)
 			return
 		}
 
 		user, err := udb.GetUserFromName(data.Name)
 		if err != nil {
-			http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
+			resp.WithCodeAndDescription(http.StatusBadRequest)
+			resp.WithDetails(err)
+			resp.Write(w)
 			return
 		}
 
 		if user.Password != data.Password {
-			http.Error(w, "wrong password provided", http.StatusUnauthorized)
+			resp.WithCodeAndDescription(http.StatusUnauthorized)
+			resp.WithDetails("wrong password provided")
+			resp.Write(w)
 			return
 		}
 
@@ -74,20 +80,16 @@ func generateLoginHandler(udb users.UserDb, tokens auth.Auth) http.HandlerFunc {
 				err = ErrAlreadyLoggedIn
 			}
 
-			http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
+			resp.WithCodeAndDescription(http.StatusBadRequest)
+			resp.WithDetails(err)
+			resp.Write(w)
 			return
 		}
 
-		resp := types.LoginResponse{
+		out := types.LoginResponse{
 			Token: token,
 		}
-
-		out, err := json.Marshal(resp)
-		if err != nil {
-			rest.SetupInternalErrorResponseWithCause(w, err)
-			return
-		}
-
-		w.Write(out)
+		resp.WithDetails(out)
+		resp.Write(w)
 	}
 }
