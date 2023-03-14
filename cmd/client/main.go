@@ -9,6 +9,10 @@ import (
 )
 
 // TODO: How to interpret the server response?
+// Maybe as `GetBodyFromHttpResponseAs` is in the same package
+// as the `ServerResponse` we can first parse the response as
+// this and then convert the details (or whichever field we
+// say contain the answer) to this.
 
 func main() {
 	userData := types.UserData{
