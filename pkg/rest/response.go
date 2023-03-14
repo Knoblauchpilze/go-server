@@ -11,7 +11,7 @@ import (
 
 var genericMarshalDataError = "Failed to marshal user data"
 
-func GetBodyFromResponseAs(resp *http.Response, out interface{}) error {
+func GetBodyFromHttpResponseAs(resp *http.Response, out interface{}) error {
 	if resp == nil {
 		return ErrInvalidResponse
 	}

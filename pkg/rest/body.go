@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func GetBodyFromRequestAs(req *http.Request, out interface{}) error {
+func GetBodyFromHttpRequestAs(req *http.Request, out interface{}) error {
 	data, err := io.ReadAll(req.Body)
 	if err != nil {
 		return ErrFailedToGetBody

@@ -8,21 +8,21 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetBodyFromResponseAs_InvalidResponse(t *testing.T) {
+func TestGetBodyFromHttpResponseAs_InvalidResponse(t *testing.T) {
 	assert := assert.New(t)
 
 	var in foo
-	err := GetBodyFromResponseAs(nil, &in)
+	err := GetBodyFromHttpResponseAs(nil, &in)
 	assert.Equal(err, ErrInvalidResponse)
 
 	resp := http.Response{
 		StatusCode: http.StatusBadRequest,
 	}
-	err = GetBodyFromResponseAs(&resp, &in)
+	err = GetBodyFromHttpResponseAs(&resp, &in)
 	assert.Equal(err, ErrResponseIsError)
 }
 
-func TestGetBodyFromResponseAs_NoBody(t *testing.T) {
+func TestGetBodyFromHttpResponseAs_NoBody(t *testing.T) {
 	assert := assert.New(t)
 
 	resp := http.Response{
@@ -31,25 +31,25 @@ func TestGetBodyFromResponseAs_NoBody(t *testing.T) {
 	resp.Body = &mockBody{}
 
 	var in foo
-	err := GetBodyFromResponseAs(&resp, &in)
+	err := GetBodyFromHttpResponseAs(&resp, &in)
 	assert.Equal(err, ErrFailedToGetBody)
 }
 
-func TestGetBodyFromResponseAs_InvalidBody(t *testing.T) {
+func TestGetBodyFromHttpResponseAs_InvalidBody(t *testing.T) {
 	assert := assert.New(t)
 
 	var in foo
 
 	resp := generateResponseWithBody(nil)
-	err := GetBodyFromResponseAs(resp, &in)
+	err := GetBodyFromHttpResponseAs(resp, &in)
 	assert.Equal(err, ErrBodyParsingFailed)
 
 	resp = generateResponseWithBody([]byte("invalid"))
-	err = GetBodyFromResponseAs(resp, &in)
+	err = GetBodyFromHttpResponseAs(resp, &in)
 	assert.Equal(err, ErrBodyParsingFailed)
 }
 
-func TestGetBodyFromResponseAs(t *testing.T) {
+func TestGetBodyFromHttpResponseAs(t *testing.T) {
 	assert := assert.New(t)
 
 	in := foo{Bar: "bb", Baz: 12}
@@ -58,7 +58,7 @@ func TestGetBodyFromResponseAs(t *testing.T) {
 
 	var out foo
 
-	err := GetBodyFromResponseAs(resp, &out)
+	err := GetBodyFromHttpResponseAs(resp, &out)
 	assert.Nil(err)
 	assert.Equal(out.Bar, in.Bar)
 	assert.Equal(out.Baz, in.Baz)

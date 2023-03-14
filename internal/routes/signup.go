@@ -16,21 +16,12 @@ var SignUpURLRoute = "/signup"
 
 var signUpRequestDataKey stringDataKeyType = "signupData"
 
-func buildSignUpDataFromRequest(w http.ResponseWriter, r *http.Request) (types.UserData, bool) {
-	var data types.UserData
-	var err error
-
-	if err = rest.GetBodyFromRequestAs(r, &data); err != nil {
-		http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
-	}
-
-	return data, err == nil
-}
-
 func signUpCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		signUpData, ok := buildSignUpDataFromRequest(w, r)
-		if !ok {
+		var signUpData types.UserData
+
+		if err := rest.GetBodyFromHttpRequestAs(r, &signUpData); err != nil {
+			http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
 			return
 		}
 

@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-func GetHeaderFromRequest(req *http.Request, headerKey string) ([]string, error) {
+func GetHeaderFromHttpRequest(req *http.Request, headerKey string) ([]string, error) {
 	header, ok := req.Header[headerKey]
 	if !ok {
 		return nil, ErrNoSuchHeader
@@ -13,8 +13,8 @@ func GetHeaderFromRequest(req *http.Request, headerKey string) ([]string, error)
 	return header, nil
 }
 
-func GetSingleHeaderFromRequest(req *http.Request, headerKey string) (string, error) {
-	header, err := GetHeaderFromRequest(req, headerKey)
+func GetSingleHeaderFromHttpRequest(req *http.Request, headerKey string) (string, error) {
+	header, err := GetHeaderFromHttpRequest(req, headerKey)
 	if err != nil {
 		return "", err
 	}

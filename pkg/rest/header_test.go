@@ -13,16 +13,16 @@ func generateRequestWithHeader() http.Request {
 	}
 }
 
-func TestGetHeaderFromRequest_NoHeader(t *testing.T) {
+func TestGetHeaderFromHttpRequest_NoHeader(t *testing.T) {
 	assert := assert.New(t)
 
 	req := http.Request{}
 
-	_, err := GetHeaderFromRequest(&req, "foo")
+	_, err := GetHeaderFromHttpRequest(&req, "foo")
 	assert.Equal(err, ErrNoSuchHeader)
 }
 
-func TestGetHeaderFromRequest_OneValue(t *testing.T) {
+func TestGetHeaderFromHttpRequest_OneValue(t *testing.T) {
 	assert := assert.New(t)
 
 	headerValues := []string{"haha"}
@@ -30,7 +30,7 @@ func TestGetHeaderFromRequest_OneValue(t *testing.T) {
 	req := generateRequestWithHeader()
 	req.Header["foo"] = headerValues
 
-	out, err := GetHeaderFromRequest(&req, "foo")
+	out, err := GetHeaderFromHttpRequest(&req, "foo")
 	assert.Nil(err)
 	assert.Equal(len(headerValues), len(out))
 
@@ -39,17 +39,17 @@ func TestGetHeaderFromRequest_OneValue(t *testing.T) {
 	}
 }
 
-func TestGetHeaderFromRequest_AnotherValue(t *testing.T) {
+func TestGetHeaderFromHttpRequest_AnotherValue(t *testing.T) {
 	assert := assert.New(t)
 
 	req := generateRequestWithHeader()
 	req.Header["food"] = []string{"haha"}
 
-	_, err := GetHeaderFromRequest(&req, "foo")
+	_, err := GetHeaderFromHttpRequest(&req, "foo")
 	assert.Equal(err, ErrNoSuchHeader)
 }
 
-func TestGetHeaderFromRequest_TwoValues(t *testing.T) {
+func TestGetHeaderFromHttpRequest_TwoValues(t *testing.T) {
 	assert := assert.New(t)
 
 	fooHeaderValues := []string{"haha"}
@@ -59,7 +59,7 @@ func TestGetHeaderFromRequest_TwoValues(t *testing.T) {
 	req.Header["foo"] = fooHeaderValues
 	req.Header["bar"] = barHeaderValues
 
-	out, err := GetHeaderFromRequest(&req, "foo")
+	out, err := GetHeaderFromHttpRequest(&req, "foo")
 	assert.Nil(err)
 	assert.Equal(len(fooHeaderValues), len(out))
 
@@ -68,16 +68,16 @@ func TestGetHeaderFromRequest_TwoValues(t *testing.T) {
 	}
 }
 
-func TestGetSingleHeaderFromRequest_NoHeader(t *testing.T) {
+func TestGetSingleHeaderFromHttpRequest_NoHeader(t *testing.T) {
 	assert := assert.New(t)
 
 	req := http.Request{}
 
-	_, err := GetSingleHeaderFromRequest(&req, "foo")
+	_, err := GetSingleHeaderFromHttpRequest(&req, "foo")
 	assert.Equal(err, ErrNoSuchHeader)
 }
 
-func TestGetSingleHeaderFromRequest_OneValue(t *testing.T) {
+func TestGetSingleHeaderFromHttpRequest_OneValue(t *testing.T) {
 	assert := assert.New(t)
 
 	headerValues := []string{"haha"}
@@ -85,12 +85,12 @@ func TestGetSingleHeaderFromRequest_OneValue(t *testing.T) {
 	req := generateRequestWithHeader()
 	req.Header["foo"] = headerValues
 
-	out, err := GetSingleHeaderFromRequest(&req, "foo")
+	out, err := GetSingleHeaderFromHttpRequest(&req, "foo")
 	assert.Nil(err)
 	assert.Equal("haha", out)
 }
 
-func TestGetSingleHeaderFromRequest_MultipleValues(t *testing.T) {
+func TestGetSingleHeaderFromHttpRequest_MultipleValues(t *testing.T) {
 	assert := assert.New(t)
 
 	headerValues := []string{"haha", "hihi"}
@@ -98,6 +98,6 @@ func TestGetSingleHeaderFromRequest_MultipleValues(t *testing.T) {
 	req := generateRequestWithHeader()
 	req.Header["foo"] = headerValues
 
-	_, err := GetSingleHeaderFromRequest(&req, "foo")
+	_, err := GetSingleHeaderFromHttpRequest(&req, "foo")
 	assert.Equal(err, ErrNonUniqueHeader)
 }
