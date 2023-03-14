@@ -8,6 +8,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// TODO: How to interpret the server response?
+
 func main() {
 	userData := types.UserData{
 		Name:     "toto",
