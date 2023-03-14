@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,10 +16,12 @@ func generateResponseWithBody(body interface{}) *http.Response {
 		StatusCode: http.StatusOK,
 	}
 
-	var data []byte
-	if data != nil {
-		data, _ = json.Marshal(body)
+	in := NewSuccessResponse(uuid.UUID{})
+	if body != nil {
+		in.WithDetails(body)
 	}
+
+	data, _ := json.Marshal(in)
 
 	rdr := bytes.NewReader(data)
 	resp.Body = io.NopCloser(rdr)
@@ -31,13 +34,20 @@ func TestGetBodyFromHttpResponseAs_InvalidResponse(t *testing.T) {
 
 	var in foo
 	err := GetBodyFromHttpResponseAs(nil, &in)
-	assert.Equal(err, ErrInvalidResponse)
+	assert.Equal(err, ErrNoResponse)
 
 	resp := http.Response{
 		StatusCode: http.StatusBadRequest,
 	}
 	err = GetBodyFromHttpResponseAs(&resp, &in)
 	assert.Equal(err, ErrResponseIsError)
+
+	resp.StatusCode = http.StatusOK
+	rdr := bytes.NewReader([]byte("haha"))
+	resp.Body = io.NopCloser(rdr)
+
+	err = GetBodyFromHttpResponseAs(&resp, &in)
+	assert.Equal(err, ErrInvalidResponse)
 }
 
 func TestGetBodyFromHttpResponseAs_NoBody(t *testing.T) {
