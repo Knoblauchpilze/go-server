@@ -1,12 +1,30 @@
 package rest
 
 import (
+	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func generateResponseWithBody(body interface{}) *http.Response {
+	resp := http.Response{
+		StatusCode: http.StatusOK,
+	}
+
+	var data []byte
+	if data != nil {
+		data, _ = json.Marshal(body)
+	}
+
+	rdr := bytes.NewReader(data)
+	resp.Body = io.NopCloser(rdr)
+
+	return &resp
+}
 
 func TestGetBodyFromHttpResponseAs_InvalidResponse(t *testing.T) {
 	assert := assert.New(t)
@@ -44,7 +62,7 @@ func TestGetBodyFromHttpResponseAs_InvalidBody(t *testing.T) {
 	err := GetBodyFromHttpResponseAs(resp, &in)
 	assert.Equal(err, ErrBodyParsingFailed)
 
-	resp = generateResponseWithBody([]byte("invalid"))
+	resp = generateResponseWithBody("invalid")
 	err = GetBodyFromHttpResponseAs(resp, &in)
 	assert.Equal(err, ErrBodyParsingFailed)
 }
@@ -53,8 +71,7 @@ func TestGetBodyFromHttpResponseAs(t *testing.T) {
 	assert := assert.New(t)
 
 	in := foo{Bar: "bb", Baz: 12}
-	data, _ := json.Marshal(in)
-	resp := generateResponseWithBody(data)
+	resp := generateResponseWithBody(in)
 
 	var out foo
 
