@@ -54,21 +54,21 @@ func generateLoginHandler(udb users.UserDb, tokens auth.Auth) http.HandlerFunc {
 		ctx := r.Context()
 		data, ok := ctx.Value(loginRequestDataKey).(types.UserData)
 		if !ok {
-			resp.WithCodeAndDescription(http.StatusUnprocessableEntity)
+			resp.WithCode(http.StatusUnprocessableEntity)
 			resp.Write(w)
 			return
 		}
 
 		user, err := udb.GetUserFromName(data.Name)
 		if err != nil {
-			resp.WithCodeAndDescription(http.StatusBadRequest)
+			resp.WithCode(http.StatusBadRequest)
 			resp.WithDetails(err)
 			resp.Write(w)
 			return
 		}
 
 		if user.Password != data.Password {
-			resp.WithCodeAndDescription(http.StatusUnauthorized)
+			resp.WithCode(http.StatusUnauthorized)
 			resp.WithDetails("wrong password provided")
 			resp.Write(w)
 			return
@@ -80,7 +80,7 @@ func generateLoginHandler(udb users.UserDb, tokens auth.Auth) http.HandlerFunc {
 				err = ErrAlreadyLoggedIn
 			}
 
-			resp.WithCodeAndDescription(http.StatusBadRequest)
+			resp.WithCode(http.StatusBadRequest)
 			resp.WithDetails(err)
 			resp.Write(w)
 			return

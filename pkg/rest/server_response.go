@@ -9,24 +9,20 @@ import (
 )
 
 type ServerResponse interface {
-	WithDescription(desc string) ServerResponse
-	WithDetails(details interface{}) ServerResponse
-
 	Pass() ServerResponse
 	Fail() ServerResponse
 
+	WithDetails(details interface{}) ServerResponse
 	WithCode(httpCode int) ServerResponse
-	WithCodeAndDescription(httpCode int) ServerResponse
 
 	Write(w http.ResponseWriter)
 }
 
 type serverResponseImpl struct {
-	RequestID   uuid.UUID
-	Status      string
-	Description string          `json:",omitempty"`
-	Details     json.RawMessage `json:",omitempty"`
-	code        int
+	RequestID uuid.UUID
+	Status    string
+	Details   json.RawMessage `json:",omitempty"`
+	code      int
 }
 
 var StatusOK = "SUCCESS"
@@ -48,8 +44,13 @@ func NewErrorResponse(id uuid.UUID) ServerResponse {
 	}
 }
 
-func (sr *serverResponseImpl) WithDescription(desc string) ServerResponse {
-	sr.Description = desc
+func (sr *serverResponseImpl) Pass() ServerResponse {
+	sr.Status = StatusOK
+	return sr
+}
+
+func (sr *serverResponseImpl) Fail() ServerResponse {
+	sr.Status = StatusNOK
 	return sr
 }
 
@@ -73,16 +74,6 @@ func (sr *serverResponseImpl) WithDetails(details interface{}) ServerResponse {
 	return sr
 }
 
-func (sr *serverResponseImpl) Pass() ServerResponse {
-	sr.Status = StatusOK
-	return sr
-}
-
-func (sr *serverResponseImpl) Fail() ServerResponse {
-	sr.Status = StatusNOK
-	return sr
-}
-
 func (sr *serverResponseImpl) WithCode(httpCode int) ServerResponse {
 	sr.code = httpCode
 	if sr.code != http.StatusOK {
@@ -90,12 +81,6 @@ func (sr *serverResponseImpl) WithCode(httpCode int) ServerResponse {
 	}
 
 	return sr.Pass()
-}
-
-func (sr *serverResponseImpl) WithCodeAndDescription(httpCode int) ServerResponse {
-	sr.WithCode(httpCode)
-	sr.WithDescription(http.StatusText(httpCode))
-	return sr
 }
 
 func (sr *serverResponseImpl) Write(w http.ResponseWriter) {
