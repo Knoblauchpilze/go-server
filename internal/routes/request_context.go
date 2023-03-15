@@ -26,7 +26,7 @@ func requestCtx(next http.Handler) http.Handler {
 	})
 }
 
-func buildServerResponseFromHttpRequest(r *http.Request) rest.ServerResponse {
+func buildServerResponseFromHttpRequest(r *http.Request) rest.Response {
 	var err error
 
 	ctx := r.Context()

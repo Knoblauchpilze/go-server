@@ -24,7 +24,7 @@ func GetBodyFromHttpResponseAs(resp *http.Response, out interface{}) error {
 		return ErrFailedToGetBody
 	}
 
-	var in serverResponseImpl
+	var in responseImpl
 	err = json.Unmarshal(data, &in)
 	if err != nil {
 		return ErrInvalidResponse
