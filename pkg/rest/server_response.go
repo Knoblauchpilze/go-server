@@ -8,17 +8,17 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type ServerResponse interface {
-	Pass() ServerResponse
-	Fail() ServerResponse
+type Response interface {
+	Pass() Response
+	Fail() Response
 
-	WithDetails(details interface{}) ServerResponse
-	WithCode(httpCode int) ServerResponse
+	WithDetails(details interface{}) Response
+	WithCode(httpCode int) Response
 
 	Write(w http.ResponseWriter)
 }
 
-type serverResponseImpl struct {
+type responseImpl struct {
 	RequestID uuid.UUID
 	Status    string
 	Details   json.RawMessage `json:",omitempty"`
@@ -28,33 +28,33 @@ type serverResponseImpl struct {
 var StatusOK = "SUCCESS"
 var StatusNOK = "ERROR"
 
-func NewSuccessResponse(id uuid.UUID) ServerResponse {
-	return &serverResponseImpl{
+func NewSuccessResponse(id uuid.UUID) Response {
+	return &responseImpl{
 		RequestID: id,
 		Status:    StatusOK,
 		code:      http.StatusOK,
 	}
 }
 
-func NewErrorResponse(id uuid.UUID) ServerResponse {
-	return &serverResponseImpl{
+func NewErrorResponse(id uuid.UUID) Response {
+	return &responseImpl{
 		RequestID: id,
 		Status:    StatusNOK,
 		code:      http.StatusOK,
 	}
 }
 
-func (sr *serverResponseImpl) Pass() ServerResponse {
-	sr.Status = StatusOK
-	return sr
+func (ri *responseImpl) Pass() Response {
+	ri.Status = StatusOK
+	return ri
 }
 
-func (sr *serverResponseImpl) Fail() ServerResponse {
-	sr.Status = StatusNOK
-	return sr
+func (ri *responseImpl) Fail() Response {
+	ri.Status = StatusNOK
+	return ri
 }
 
-func (sr *serverResponseImpl) WithDetails(details interface{}) ServerResponse {
+func (ri *responseImpl) WithDetails(details interface{}) Response {
 	var out []byte
 	var err error
 
@@ -68,27 +68,27 @@ func (sr *serverResponseImpl) WithDetails(details interface{}) ServerResponse {
 	if err != nil {
 		logrus.Errorf("Failed to add details %v to response (%v)", details, err)
 	} else {
-		sr.Details = out
+		ri.Details = out
 	}
 
-	return sr
+	return ri
 }
 
-func (sr *serverResponseImpl) WithCode(httpCode int) ServerResponse {
-	sr.code = httpCode
-	if sr.code != http.StatusOK {
-		return sr.Fail()
+func (ri *responseImpl) WithCode(httpCode int) Response {
+	ri.code = httpCode
+	if ri.code != http.StatusOK {
+		return ri.Fail()
 	}
 
-	return sr.Pass()
+	return ri.Pass()
 }
 
-func (sr *serverResponseImpl) Write(w http.ResponseWriter) {
-	out, err := json.Marshal(sr)
+func (ri *responseImpl) Write(w http.ResponseWriter) {
+	out, err := json.Marshal(ri)
 	if err != nil {
 		logrus.Errorf("Failed to setup server response (%v)", err)
 	}
 
-	w.WriteHeader(sr.code)
+	w.WriteHeader(ri.code)
 	w.Write(out)
 }

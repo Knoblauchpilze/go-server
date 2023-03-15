@@ -11,7 +11,7 @@ import (
 
 var dummyID = "eb10f542-c2a8-11ed-befe-18c04d0e6a41"
 
-func TestServerResponse_OK(t *testing.T) {
+func TestResponse_OK(t *testing.T) {
 	assert := assert.New(t)
 
 	id, _ := uuid.Parse(dummyID)
@@ -24,7 +24,7 @@ func TestServerResponse_OK(t *testing.T) {
 	assert.Equal(expected, string(mrw.data))
 }
 
-func TestServerResponse_NOK(t *testing.T) {
+func TestResponse_NOK(t *testing.T) {
 	assert := assert.New(t)
 
 	id, _ := uuid.Parse(dummyID)
@@ -37,7 +37,7 @@ func TestServerResponse_NOK(t *testing.T) {
 	assert.Equal(expected, string(mrw.data))
 }
 
-func TestServerResponse_Pass(t *testing.T) {
+func TestResponse_Pass(t *testing.T) {
 	assert := assert.New(t)
 
 	id, _ := uuid.Parse(dummyID)
@@ -51,7 +51,7 @@ func TestServerResponse_Pass(t *testing.T) {
 	assert.Equal(expected, string(mrw.data))
 }
 
-func TestServerResponse_Fail(t *testing.T) {
+func TestResponse_Fail(t *testing.T) {
 	assert := assert.New(t)
 
 	id, _ := uuid.Parse(dummyID)
@@ -65,7 +65,7 @@ func TestServerResponse_Fail(t *testing.T) {
 	assert.Equal(expected, string(mrw.data))
 }
 
-func TestServerResponse_WithDetails(t *testing.T) {
+func TestResponse_WithDetails(t *testing.T) {
 	assert := assert.New(t)
 
 	id, _ := uuid.Parse(dummyID)
@@ -89,7 +89,7 @@ func TestServerResponse_WithDetails(t *testing.T) {
 	assert.Equal(expected, string(mrw.data))
 }
 
-func TestServerResponse_WithCode(t *testing.T) {
+func TestResponse_WithCode(t *testing.T) {
 	assert := assert.New(t)
 
 	id, _ := uuid.Parse(dummyID)
@@ -111,7 +111,7 @@ func TestServerResponse_WithCode(t *testing.T) {
 	assert.Equal(http.StatusTeapot, mrw.code)
 }
 
-func TestServerResponse_Write(t *testing.T) {
+func TestResponse_Write(t *testing.T) {
 	assert := assert.New(t)
 
 	id, _ := uuid.Parse(dummyID)
