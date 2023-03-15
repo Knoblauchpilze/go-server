@@ -37,44 +37,6 @@ func TestServerResponse_NOK(t *testing.T) {
 	assert.Equal(expected, string(mrw.data))
 }
 
-func TestServerResponse_WithDescription(t *testing.T) {
-	assert := assert.New(t)
-
-	id, _ := uuid.Parse(dummyID)
-	mrw := mockResponseWriter{}
-
-	resp := NewSuccessResponse(id)
-	resp.WithDescription("haha")
-	resp.Write(&mrw)
-
-	expected := fmt.Sprintf("{\"RequestID\":\"%s\",\"Status\":\"%v\",\"Description\":\"haha\"}", dummyID, StatusOK)
-	assert.Equal(expected, string(mrw.data))
-}
-
-func TestServerResponse_WithDetails(t *testing.T) {
-	assert := assert.New(t)
-
-	id, _ := uuid.Parse(dummyID)
-	mrw := mockResponseWriter{}
-
-	resp := NewSuccessResponse(id)
-	resp.WithDetails(23)
-	resp.Write(&mrw)
-
-	expected := fmt.Sprintf("{\"RequestID\":\"%s\",\"Status\":\"%v\",\"Details\":23}", dummyID, StatusOK)
-	assert.Equal(expected, string(mrw.data))
-
-	test := foo{
-		Bar: "haha",
-		Baz: -23,
-	}
-	resp.WithDetails(test)
-	resp.Write(&mrw)
-
-	expected = fmt.Sprintf("{\"RequestID\":\"%s\",\"Status\":\"%v\",\"Details\":{\"Bar\":\"haha\",\"Baz\":-23}}", dummyID, StatusOK)
-	assert.Equal(expected, string(mrw.data))
-}
-
 func TestServerResponse_Pass(t *testing.T) {
 	assert := assert.New(t)
 
@@ -103,6 +65,30 @@ func TestServerResponse_Fail(t *testing.T) {
 	assert.Equal(expected, string(mrw.data))
 }
 
+func TestServerResponse_WithDetails(t *testing.T) {
+	assert := assert.New(t)
+
+	id, _ := uuid.Parse(dummyID)
+	mrw := mockResponseWriter{}
+
+	resp := NewSuccessResponse(id)
+	resp.WithDetails(23)
+	resp.Write(&mrw)
+
+	expected := fmt.Sprintf("{\"RequestID\":\"%s\",\"Status\":\"%v\",\"Details\":23}", dummyID, StatusOK)
+	assert.Equal(expected, string(mrw.data))
+
+	test := foo{
+		Bar: "haha",
+		Baz: -23,
+	}
+	resp.WithDetails(test)
+	resp.Write(&mrw)
+
+	expected = fmt.Sprintf("{\"RequestID\":\"%s\",\"Status\":\"%v\",\"Details\":{\"Bar\":\"haha\",\"Baz\":-23}}", dummyID, StatusOK)
+	assert.Equal(expected, string(mrw.data))
+}
+
 func TestServerResponse_WithCode(t *testing.T) {
 	assert := assert.New(t)
 
@@ -125,22 +111,6 @@ func TestServerResponse_WithCode(t *testing.T) {
 	assert.Equal(http.StatusTeapot, mrw.code)
 }
 
-func TestServerResponse_WithCodeAndDescription(t *testing.T) {
-	assert := assert.New(t)
-
-	id, _ := uuid.Parse(dummyID)
-	mrw := mockResponseWriter{}
-	code := http.StatusForbidden
-
-	resp := NewSuccessResponse(id)
-	resp.WithCodeAndDescription(code)
-	resp.Write(&mrw)
-
-	expected := fmt.Sprintf("{\"RequestID\":\"%s\",\"Status\":\"%v\",\"Description\":\"%v\"}", dummyID, StatusNOK, http.StatusText(code))
-	assert.Equal(expected, string(mrw.data))
-	assert.Equal(http.StatusForbidden, mrw.code)
-}
-
 func TestServerResponse_Write(t *testing.T) {
 	assert := assert.New(t)
 
@@ -154,17 +124,10 @@ func TestServerResponse_Write(t *testing.T) {
 	assert.Equal(expected, string(mrw.data))
 	assert.Equal(http.StatusOK, mrw.code)
 
-	resp.WithDescription("haha")
-	resp.Write(&mrw)
-
-	expected = fmt.Sprintf("{\"RequestID\":\"%s\",\"Status\":\"%v\",\"Description\":\"haha\"}", dummyID, StatusOK)
-	assert.Equal(expected, string(mrw.data))
-	assert.Equal(http.StatusOK, mrw.code)
-
 	resp.WithDetails(12.2)
 	resp.Write(&mrw)
 
-	expected = fmt.Sprintf("{\"RequestID\":\"%s\",\"Status\":\"%v\",\"Description\":\"haha\",\"Details\":12.2}", dummyID, StatusOK)
+	expected = fmt.Sprintf("{\"RequestID\":\"%s\",\"Status\":\"%v\",\"Details\":12.2}", dummyID, StatusOK)
 	assert.Equal(expected, string(mrw.data))
 	assert.Equal(http.StatusOK, mrw.code)
 }

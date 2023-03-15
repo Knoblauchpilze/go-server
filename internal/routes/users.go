@@ -67,14 +67,14 @@ func generateUsersHandler(udb users.UserDb) http.HandlerFunc {
 		ctx := r.Context()
 		id, ok := ctx.Value(userIDDataKey).(uuid.UUID)
 		if !ok {
-			resp.WithCodeAndDescription(http.StatusUnprocessableEntity)
+			resp.WithCode(http.StatusUnprocessableEntity)
 			resp.Write(w)
 			return
 		}
 
 		userData, err := udb.GetUser(id)
 		if err != nil {
-			resp.WithCodeAndDescription(http.StatusBadRequest)
+			resp.WithCode(http.StatusBadRequest)
 			resp.WithDetails(err)
 			resp.Write(w)
 			return

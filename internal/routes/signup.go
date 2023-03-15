@@ -47,7 +47,7 @@ func generateSignUpHandler(udb users.UserDb) http.HandlerFunc {
 		ctx := r.Context()
 		data, ok := ctx.Value(signUpRequestDataKey).(types.UserData)
 		if !ok {
-			resp.WithCodeAndDescription(http.StatusUnprocessableEntity)
+			resp.WithCode(http.StatusUnprocessableEntity)
 			resp.Write(w)
 			return
 		}
@@ -59,7 +59,7 @@ func generateSignUpHandler(udb users.UserDb) http.HandlerFunc {
 				errCode = http.StatusInternalServerError
 			}
 
-			resp.WithCodeAndDescription(errCode)
+			resp.WithCode(errCode)
 			resp.WithDetails(err)
 			resp.Write(w)
 			return
