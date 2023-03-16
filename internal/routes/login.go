@@ -21,8 +21,6 @@ var LoginURLRoute = "/login"
 
 var loginRequestDataKey stringDataKeyType = "loginData"
 
-var ErrAlreadyLoggedIn = fmt.Errorf("user already logged in")
-
 func loginCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var loginData types.UserData
@@ -78,7 +76,7 @@ func generateLoginHandler(udb users.UserDb, tokens auth.Auth) http.HandlerFunc {
 		token, err := tokens.GenerateToken(user.ID, user.Password)
 		if err != nil {
 			if errors.IsErrorWithCode(err, errors.ErrTokenAlreadyExists) {
-				err = ErrAlreadyLoggedIn
+				err = errors.New("user already logged in")
 			}
 
 			resp.WithCode(http.StatusBadRequest)
