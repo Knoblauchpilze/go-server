@@ -9,6 +9,9 @@ const (
 	ErrUserAlreadyExists
 	ErrUserCreationFailure
 	ErrNoSuchUser
+
+	ErrNoSuchToken
+	ErrTokenAlreadyExists
 )
 
 var errorsCodeToMessage = map[ErrorCode]string{
@@ -17,6 +20,9 @@ var errorsCodeToMessage = map[ErrorCode]string{
 	ErrUserAlreadyExists:   "user already exists",
 	ErrUserCreationFailure: "internal error while creating user",
 	ErrNoSuchUser:          "no such user",
+
+	ErrNoSuchToken:        "no such token",
+	ErrTokenAlreadyExists: "token already exists",
 }
 
 var defaultErrorMessage = "unexpected error occurred"
