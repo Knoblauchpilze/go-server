@@ -22,7 +22,7 @@ const (
 	ErrNoResponse
 	ErrResponseIsError
 
-	ErrInvalidSignUpData
+	ErrPostInvalidData
 	ErrPostRequestFailed
 )
 
@@ -45,7 +45,7 @@ var errorsCodeToMessage = map[ErrorCode]string{
 	ErrNoResponse:      "no response",
 	ErrResponseIsError: "response returned error code",
 
-	ErrInvalidSignUpData: "invalid sign up data",
+	ErrPostInvalidData:   "invalid post request data",
 	ErrPostRequestFailed: "post request failed",
 }
 

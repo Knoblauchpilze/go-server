@@ -14,7 +14,7 @@ import (
 func SignUp(in types.UserData) (types.SignUpResponse, error) {
 	data, err := json.Marshal(in)
 	if err != nil {
-		return types.SignUpResponse{}, errors.WrapCode(err, errors.ErrInvalidSignUpData)
+		return types.SignUpResponse{}, errors.WrapCode(err, errors.ErrPostInvalidData)
 	}
 
 	singUpURL := fmt.Sprintf("%s/signup", serverURL)
