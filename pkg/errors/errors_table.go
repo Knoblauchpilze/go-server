@@ -21,6 +21,9 @@ const (
 
 	ErrNoResponse
 	ErrResponseIsError
+
+	ErrInvalidSignUpData
+	ErrPostRequestFailed
 )
 
 var errorsCodeToMessage = map[ErrorCode]string{
@@ -41,6 +44,9 @@ var errorsCodeToMessage = map[ErrorCode]string{
 
 	ErrNoResponse:      "no response",
 	ErrResponseIsError: "response returned error code",
+
+	ErrInvalidSignUpData: "invalid sign up data",
+	ErrPostRequestFailed: "post request failed",
 }
 
 var defaultErrorMessage = "unexpected error occurred"
