@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/KnoblauchPilze/go-server/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -19,7 +20,7 @@ func TestGetHeaderFromHttpRequest_NoHeader(t *testing.T) {
 	req := http.Request{}
 
 	_, err := GetHeaderFromHttpRequest(&req, "foo")
-	assert.Equal(err, ErrNoSuchHeader)
+	assert.True(errors.IsErrorWithCode(err, errors.ErrNoSuchHeader))
 }
 
 func TestGetHeaderFromHttpRequest_OneValue(t *testing.T) {
@@ -46,7 +47,7 @@ func TestGetHeaderFromHttpRequest_AnotherValue(t *testing.T) {
 	req.Header["food"] = []string{"haha"}
 
 	_, err := GetHeaderFromHttpRequest(&req, "foo")
-	assert.Equal(err, ErrNoSuchHeader)
+	assert.True(errors.IsErrorWithCode(err, errors.ErrNoSuchHeader))
 }
 
 func TestGetHeaderFromHttpRequest_TwoValues(t *testing.T) {
@@ -74,7 +75,7 @@ func TestGetSingleHeaderFromHttpRequest_NoHeader(t *testing.T) {
 	req := http.Request{}
 
 	_, err := GetSingleHeaderFromHttpRequest(&req, "foo")
-	assert.Equal(err, ErrNoSuchHeader)
+	assert.True(errors.IsErrorWithCode(err, errors.ErrNoSuchHeader))
 }
 
 func TestGetSingleHeaderFromHttpRequest_OneValue(t *testing.T) {
@@ -99,5 +100,5 @@ func TestGetSingleHeaderFromHttpRequest_MultipleValues(t *testing.T) {
 	req.Header["foo"] = headerValues
 
 	_, err := GetSingleHeaderFromHttpRequest(&req, "foo")
-	assert.Equal(err, ErrNonUniqueHeader)
+	assert.True(errors.IsErrorWithCode(err, errors.ErrNonUniqueHeader))
 }

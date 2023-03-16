@@ -156,9 +156,24 @@ func TestError_MarshalJSON(t *testing.T) {
 	err = Wrap(errSomeError, "hihi")
 	out, mErr = json.Marshal(err)
 
-	fmt.Printf("e: %v, err: %v\n", string(out), mErr)
-
 	expected = "{\"Message\":\"hihi\",\"Cause\":\"some error\"}"
 	assert.Nil(mErr)
 	assert.Equal(string(out), expected)
+
+	err = Wrap(New("haha"), "hihi")
+	out, mErr = json.Marshal(err)
+
+	expected = "{\"Message\":\"hihi\",\"Cause\":{\"Message\":\"haha\"}}"
+	assert.Nil(mErr)
+	assert.Equal(string(out), expected)
+}
+
+func TestError_IsErrorWithCode(t *testing.T) {
+	assert := assert.New(t)
+
+	assert.False(IsErrorWithCode(nil, ErrInvalidUserName))
+	assert.False(IsErrorWithCode(errSomeError, ErrInvalidUserName))
+	assert.True(IsErrorWithCode(NewCode(ErrInvalidUserName), ErrInvalidUserName))
+	assert.False(IsErrorWithCode(NewCode(ErrInvalidPassword), ErrInvalidUserName))
+	assert.False(IsErrorWithCode(New("haha"), ErrInvalidUserName))
 }

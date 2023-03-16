@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/KnoblauchPilze/go-server/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,7 +28,7 @@ func TestGetBodyFromHttpRequestAs_NoBody(t *testing.T) {
 
 	var in foo
 	err := GetBodyFromHttpRequestAs(&req, &in)
-	assert.Equal(err, ErrFailedToGetBody)
+	assert.True(errors.IsErrorWithCode(err, errors.ErrFailedToGetBody))
 }
 
 func TestGetBodyFromHttpRequestAs_InvalidBody(t *testing.T) {
@@ -37,11 +38,11 @@ func TestGetBodyFromHttpRequestAs_InvalidBody(t *testing.T) {
 
 	req := generateRequestWithBody(nil)
 	err := GetBodyFromHttpRequestAs(req, &in)
-	assert.Equal(err, ErrBodyParsingFailed)
+	assert.True(errors.IsErrorWithCode(err, errors.ErrBodyParsingFailed))
 
 	req = generateRequestWithBody([]byte("invalid"))
 	err = GetBodyFromHttpRequestAs(req, &in)
-	assert.Equal(err, ErrBodyParsingFailed)
+	assert.True(errors.IsErrorWithCode(err, errors.ErrBodyParsingFailed))
 }
 
 func TestGetBodyFromHttpRequestAs(t *testing.T) {

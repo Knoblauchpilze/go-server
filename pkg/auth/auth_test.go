@@ -9,19 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func checkErrorForCode(err error, code errors.ErrorCode) bool {
-	if err == nil {
-		return false
-	}
-
-	impl, ok := err.(errors.ErrorWithCode)
-	if !ok {
-		return false
-	}
-
-	return impl.Code() == code
-}
-
 func TestGenerateToken_InvalidPassword(t *testing.T) {
 	assert := assert.New(t)
 
@@ -29,7 +16,7 @@ func TestGenerateToken_InvalidPassword(t *testing.T) {
 	id, _ := uuid.NewUUID()
 
 	_, err := auth.GenerateToken(id, "")
-	assert.True(checkErrorForCode(err, errors.ErrInvalidPassword))
+	assert.True(errors.IsErrorWithCode(err, errors.ErrInvalidPassword))
 }
 
 func TestGenerateToken(t *testing.T) {
@@ -46,7 +33,7 @@ func TestGenerateToken(t *testing.T) {
 	assert.True(time.Now().Before(token.Expiration))
 
 	_, err = auth.GenerateToken(user, "foo")
-	assert.True(checkErrorForCode(err, errors.ErrTokenAlreadyExists))
+	assert.True(errors.IsErrorWithCode(err, errors.ErrTokenAlreadyExists))
 }
 
 func TestGetToken(t *testing.T) {
@@ -73,5 +60,5 @@ func TestGetToken_InvalidID(t *testing.T) {
 
 	auth.GenerateToken(id, "foo")
 	_, err := auth.GetToken(id2)
-	assert.True(checkErrorForCode(err, errors.ErrNoSuchToken))
+	assert.True(errors.IsErrorWithCode(err, errors.ErrNoSuchToken))
 }

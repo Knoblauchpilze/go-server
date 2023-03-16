@@ -12,6 +12,15 @@ const (
 
 	ErrNoSuchToken
 	ErrTokenAlreadyExists
+
+	ErrFailedToGetBody
+	ErrBodyParsingFailed
+
+	ErrNoSuchHeader
+	ErrNonUniqueHeader
+
+	ErrNoResponse
+	ErrResponseIsError
 )
 
 var errorsCodeToMessage = map[ErrorCode]string{
@@ -23,6 +32,15 @@ var errorsCodeToMessage = map[ErrorCode]string{
 
 	ErrNoSuchToken:        "no such token",
 	ErrTokenAlreadyExists: "token already exists",
+
+	ErrFailedToGetBody:   "failed to get request body",
+	ErrBodyParsingFailed: "failed to parse request body",
+
+	ErrNoSuchHeader:    "no such header in request",
+	ErrNonUniqueHeader: "header is defined multiple times in request",
+
+	ErrNoResponse:      "no response",
+	ErrResponseIsError: "response returned error code",
 }
 
 var defaultErrorMessage = "unexpected error occurred"

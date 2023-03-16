@@ -4,17 +4,19 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+
+	"github.com/KnoblauchPilze/go-server/pkg/errors"
 )
 
 func GetBodyFromHttpRequestAs(req *http.Request, out interface{}) error {
 	data, err := io.ReadAll(req.Body)
 	if err != nil {
-		return ErrFailedToGetBody
+		return errors.WrapCode(err, errors.ErrFailedToGetBody)
 	}
 
 	err = json.Unmarshal(data, out)
 	if err != nil {
-		return ErrBodyParsingFailed
+		return errors.WrapCode(err, errors.ErrBodyParsingFailed)
 	}
 
 	return nil
