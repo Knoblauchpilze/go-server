@@ -4,16 +4,30 @@ package users
 import (
 	"testing"
 
+	"github.com/KnoblauchPilze/go-server/pkg/errors"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
+
+func checkErrorForCode(err error, code errors.ErrorCode) bool {
+	if err == nil {
+		return false
+	}
+
+	impl, ok := err.(errors.ErrorWithCode)
+	if !ok {
+		return false
+	}
+
+	return impl.Code() == code
+}
 
 func TestAddUser_InvalidName(t *testing.T) {
 	assert := assert.New(t)
 
 	udb := NewUserDb()
 	_, err := udb.AddUser("", "")
-	assert.Equal(err, ErrInvalidUserName)
+	assert.True(checkErrorForCode(err, errors.ErrInvalidUserName))
 }
 
 func TestAddUser_InvalidPassword(t *testing.T) {
@@ -21,7 +35,7 @@ func TestAddUser_InvalidPassword(t *testing.T) {
 
 	udb := NewUserDb()
 	_, err := udb.AddUser("foo", "")
-	assert.Equal(err, ErrInvalidPassword)
+	assert.True(checkErrorForCode(err, errors.ErrInvalidPassword))
 }
 
 func TestAddUser(t *testing.T) {
@@ -44,7 +58,7 @@ func TestAddUser_Duplicated(t *testing.T) {
 	assert.Nil(err)
 
 	_, err = udb.AddUser("foo", "haha")
-	assert.Equal(err, ErrUserAlreadyExists)
+	assert.True(checkErrorForCode(err, errors.ErrUserAlreadyExists))
 }
 
 func TestGetUsers(t *testing.T) {
@@ -69,7 +83,7 @@ func TestGetUser_NoUsers(t *testing.T) {
 
 	wrongID := uuid.New()
 	_, err := udb.GetUser(wrongID)
-	assert.Equal(err, ErrNoSuchUser)
+	assert.True(checkErrorForCode(err, errors.ErrNoSuchUser))
 }
 
 func TestGetUser_WrongID(t *testing.T) {
@@ -80,7 +94,7 @@ func TestGetUser_WrongID(t *testing.T) {
 
 	wrongID := uuid.New()
 	_, err := udb.GetUser(wrongID)
-	assert.Equal(err, ErrNoSuchUser)
+	assert.True(checkErrorForCode(err, errors.ErrNoSuchUser))
 }
 
 func TestGetUser(t *testing.T) {
@@ -103,7 +117,7 @@ func TestGetUserFromName_NoUsers(t *testing.T) {
 	udb := NewUserDb()
 
 	_, err := udb.GetUserFromName("foo")
-	assert.Equal(err, ErrNoSuchUser)
+	assert.True(checkErrorForCode(err, errors.ErrNoSuchUser))
 }
 
 func TestGetUserFromname_WrongName(t *testing.T) {
@@ -113,10 +127,10 @@ func TestGetUserFromname_WrongName(t *testing.T) {
 	udb.AddUser("foo", "haha")
 
 	_, err := udb.GetUserFromName("")
-	assert.Equal(err, ErrNoSuchUser)
+	assert.True(checkErrorForCode(err, errors.ErrNoSuchUser))
 
 	_, err = udb.GetUserFromName("food")
-	assert.Equal(err, ErrNoSuchUser)
+	assert.True(checkErrorForCode(err, errors.ErrNoSuchUser))
 }
 
 func TestGetUserFromName(t *testing.T) {
