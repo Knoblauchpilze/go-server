@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/KnoblauchPilze/go-server/pkg/auth"
+	"github.com/KnoblauchPilze/go-server/pkg/errors"
 	"github.com/KnoblauchPilze/go-server/pkg/rest"
 	"github.com/KnoblauchPilze/go-server/pkg/types"
 	"github.com/KnoblauchPilze/go-server/pkg/users"
@@ -76,7 +77,7 @@ func generateLoginHandler(udb users.UserDb, tokens auth.Auth) http.HandlerFunc {
 
 		token, err := tokens.GenerateToken(user.ID, user.Password)
 		if err != nil {
-			if err == auth.ErrTokenAlreadyExists {
+			if ec, ok := err.(errors.ErrorWithCode); ok && ec.Code() == errors.ErrTokenAlreadyExists {
 				err = ErrAlreadyLoggedIn
 			}
 

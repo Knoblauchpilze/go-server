@@ -4,9 +4,23 @@ import (
 	"testing"
 	"time"
 
+	"github.com/KnoblauchPilze/go-server/pkg/errors"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
+
+func checkErrorForCode(err error, code errors.ErrorCode) bool {
+	if err == nil {
+		return false
+	}
+
+	impl, ok := err.(errors.ErrorWithCode)
+	if !ok {
+		return false
+	}
+
+	return impl.Code() == code
+}
 
 func TestGenerateToken_InvalidPassword(t *testing.T) {
 	assert := assert.New(t)
@@ -15,7 +29,7 @@ func TestGenerateToken_InvalidPassword(t *testing.T) {
 	id, _ := uuid.NewUUID()
 
 	_, err := auth.GenerateToken(id, "")
-	assert.Equal(err, ErrInvalidPassword)
+	assert.True(checkErrorForCode(err, errors.ErrInvalidPassword))
 }
 
 func TestGenerateToken(t *testing.T) {
@@ -32,7 +46,7 @@ func TestGenerateToken(t *testing.T) {
 	assert.True(time.Now().Before(token.Expiration))
 
 	_, err = auth.GenerateToken(user, "foo")
-	assert.Equal(err, ErrTokenAlreadyExists)
+	assert.True(checkErrorForCode(err, errors.ErrTokenAlreadyExists))
 }
 
 func TestGetToken(t *testing.T) {
@@ -59,5 +73,5 @@ func TestGetToken_InvalidID(t *testing.T) {
 
 	auth.GenerateToken(id, "foo")
 	_, err := auth.GetToken(id2)
-	assert.Equal(err, ErrNoSuchToken)
+	assert.True(checkErrorForCode(err, errors.ErrNoSuchToken))
 }

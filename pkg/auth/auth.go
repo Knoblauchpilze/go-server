@@ -4,6 +4,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/KnoblauchPilze/go-server/pkg/errors"
 	"github.com/google/uuid"
 )
 
@@ -33,14 +34,14 @@ func NewAuth() Auth {
 
 func (auth *AuthImpl) GenerateToken(user uuid.UUID, password string) (Token, error) {
 	if len(password) == 0 {
-		return Token{}, ErrInvalidPassword
+		return Token{}, errors.NewCode(errors.ErrInvalidPassword)
 	}
 
 	auth.lock.Lock()
 	defer auth.lock.Unlock()
 
 	if _, ok := auth.tokens[user]; ok {
-		return Token{}, ErrTokenAlreadyExists
+		return Token{}, errors.NewCode(errors.ErrTokenAlreadyExists)
 	}
 
 	token := Token{
@@ -60,7 +61,7 @@ func (auth *AuthImpl) GetToken(user uuid.UUID) (Token, error) {
 
 	token, ok := auth.tokens[user]
 	if !ok {
-		return Token{}, ErrNoSuchToken
+		return Token{}, errors.NewCode(errors.ErrNoSuchToken)
 	}
 
 	return token, nil
