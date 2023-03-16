@@ -90,6 +90,19 @@ func Unwrap(err error) error {
 	return ie.Cause
 }
 
+func IsErrorWithCode(err error, code ErrorCode) bool {
+	if err == nil {
+		return false
+	}
+
+	impl, ok := err.(ErrorWithCode)
+	if !ok {
+		return false
+	}
+
+	return impl.Code() == code
+}
+
 func (e errorImpl) Error() string {
 	var out string
 

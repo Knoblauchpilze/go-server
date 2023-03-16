@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/KnoblauchPilze/go-server/pkg/errors"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
@@ -158,20 +159,21 @@ func TestGetBodyFromHttpResponseAs_InvalidResponse(t *testing.T) {
 
 	var in foo
 	err := GetBodyFromHttpResponseAs(nil, &in)
-	assert.Equal(err, ErrNoResponse)
+	assert.True(errors.IsErrorWithCode(err, errors.ErrNoResponse))
 
 	resp := http.Response{
 		StatusCode: http.StatusBadRequest,
 	}
 	err = GetBodyFromHttpResponseAs(&resp, &in)
-	assert.Equal(err, ErrResponseIsError)
+	assert.True(errors.IsErrorWithCode(err, errors.ErrResponseIsError))
 
 	resp.StatusCode = http.StatusOK
 	rdr := bytes.NewReader([]byte("haha"))
 	resp.Body = io.NopCloser(rdr)
 
 	err = GetBodyFromHttpResponseAs(&resp, &in)
-	assert.Equal(err, ErrInvalidResponse)
+	fmt.Printf("%v\n", err)
+	assert.True(errors.IsErrorWithCode(err, errors.ErrBodyParsingFailed))
 }
 
 func TestGetBodyFromHttpResponseAs_NoBody(t *testing.T) {
@@ -184,7 +186,7 @@ func TestGetBodyFromHttpResponseAs_NoBody(t *testing.T) {
 
 	var in foo
 	err := GetBodyFromHttpResponseAs(&resp, &in)
-	assert.Equal(err, ErrFailedToGetBody)
+	assert.True(errors.IsErrorWithCode(err, errors.ErrFailedToGetBody))
 }
 
 func TestGetBodyFromHttpResponseAs_InvalidBody(t *testing.T) {
@@ -194,11 +196,11 @@ func TestGetBodyFromHttpResponseAs_InvalidBody(t *testing.T) {
 
 	resp := generateResponseWithBody(nil)
 	err := GetBodyFromHttpResponseAs(resp, &in)
-	assert.Equal(err, ErrBodyParsingFailed)
+	assert.True(errors.IsErrorWithCode(err, errors.ErrBodyParsingFailed))
 
 	resp = generateResponseWithBody("invalid")
 	err = GetBodyFromHttpResponseAs(resp, &in)
-	assert.Equal(err, ErrBodyParsingFailed)
+	assert.True(errors.IsErrorWithCode(err, errors.ErrBodyParsingFailed))
 }
 
 func TestGetBodyFromHttpResponseAs(t *testing.T) {

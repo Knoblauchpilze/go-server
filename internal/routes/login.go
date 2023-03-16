@@ -77,7 +77,7 @@ func generateLoginHandler(udb users.UserDb, tokens auth.Auth) http.HandlerFunc {
 
 		token, err := tokens.GenerateToken(user.ID, user.Password)
 		if err != nil {
-			if ec, ok := err.(errors.ErrorWithCode); ok && ec.Code() == errors.ErrTokenAlreadyExists {
+			if errors.IsErrorWithCode(err, errors.ErrTokenAlreadyExists) {
 				err = ErrAlreadyLoggedIn
 			}
 

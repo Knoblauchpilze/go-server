@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/KnoblauchPilze/go-server/pkg/errors"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
@@ -92,35 +93,36 @@ func (ri *responseImpl) Write(w http.ResponseWriter) {
 
 func GetBodyFromHttpResponseAs(resp *http.Response, out interface{}) error {
 	if resp == nil {
-		return ErrNoResponse
+		return errors.NewCode(errors.ErrNoResponse)
 	}
 	if resp.Body == nil {
 		if resp.StatusCode != http.StatusOK {
-			return ErrResponseIsError
+			logrus.Errorf("Response returned code %d (%v)", resp.StatusCode, http.StatusText(resp.StatusCode))
+			return errors.NewCode(errors.ErrResponseIsError)
 		}
-		return ErrFailedToGetBody
+		return errors.NewCode(errors.ErrFailedToGetBody)
 	}
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return ErrFailedToGetBody
+		return errors.WrapCode(err, errors.ErrFailedToGetBody)
 	}
 
 	var in responseImpl
 	err = json.Unmarshal(data, &in)
 	if err != nil {
-		return ErrInvalidResponse
+		return errors.WrapCode(err, errors.ErrBodyParsingFailed)
 	}
 
 	if resp.StatusCode != http.StatusOK {
 		logrus.Errorf("Response returned code %d (%v): %v", resp.StatusCode, http.StatusText(resp.StatusCode), string(in.Details))
-		return ErrResponseIsError
+		return errors.NewCode(errors.ErrResponseIsError)
 	}
 
 	err = json.Unmarshal(in.Details, out)
 	if err != nil {
 		logrus.Errorf("Failed to parse %v (err: %v)", string(data), err)
-		return ErrBodyParsingFailed
+		return errors.WrapCode(err, errors.ErrBodyParsingFailed)
 	}
 
 	return nil

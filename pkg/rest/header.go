@@ -2,12 +2,14 @@ package rest
 
 import (
 	"net/http"
+
+	"github.com/KnoblauchPilze/go-server/pkg/errors"
 )
 
 func GetHeaderFromHttpRequest(req *http.Request, headerKey string) ([]string, error) {
 	header, ok := req.Header[headerKey]
 	if !ok {
-		return nil, ErrNoSuchHeader
+		return nil, errors.NewCode(errors.ErrNoSuchHeader)
 	}
 
 	return header, nil
@@ -20,7 +22,7 @@ func GetSingleHeaderFromHttpRequest(req *http.Request, headerKey string) (string
 	}
 
 	if len(header) > 1 {
-		return "", ErrNonUniqueHeader
+		return "", errors.NewCode(errors.ErrNonUniqueHeader)
 	}
 
 	return header[0], nil

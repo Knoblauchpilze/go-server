@@ -56,7 +56,7 @@ func generateSignUpHandler(udb users.UserDb) http.HandlerFunc {
 		id, err := udb.AddUser(data.Name, data.Password)
 		if err != nil {
 			errCode := http.StatusBadRequest
-			if ec, ok := err.(errors.ErrorWithCode); ok && ec.Code() == errors.ErrUserCreationFailure {
+			if errors.IsErrorWithCode(err, errors.ErrUserCreationFailure) {
 				errCode = http.StatusInternalServerError
 			}
 
