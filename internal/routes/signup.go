@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/KnoblauchPilze/go-server/pkg/errors"
 	"github.com/KnoblauchPilze/go-server/pkg/rest"
 	"github.com/KnoblauchPilze/go-server/pkg/types"
 	"github.com/KnoblauchPilze/go-server/pkg/users"
@@ -55,7 +56,7 @@ func generateSignUpHandler(udb users.UserDb) http.HandlerFunc {
 		id, err := udb.AddUser(data.Name, data.Password)
 		if err != nil {
 			errCode := http.StatusBadRequest
-			if err == users.ErrUserCreationFailure {
+			if ec, ok := err.(errors.ErrorWithCode); ok && ec.Code() == errors.ErrUserCreationFailure {
 				errCode = http.StatusInternalServerError
 			}
 

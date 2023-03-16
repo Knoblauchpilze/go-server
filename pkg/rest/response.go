@@ -60,11 +60,7 @@ func (ri *responseImpl) WithDetails(details interface{}) Response {
 	var err error
 
 	// Handle error interface.
-	if inErr, ok := details.(error); ok {
-		out, err = json.Marshal(inErr.Error())
-	} else {
-		out, err = json.Marshal(details)
-	}
+	out, err = json.Marshal(details)
 
 	if err != nil {
 		logrus.Errorf("Failed to add details %v to response (%v)", details, err)
