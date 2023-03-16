@@ -139,25 +139,26 @@ func TestError_MarshalJSON(t *testing.T) {
 	assert := assert.New(t)
 
 	err := New("haha")
-	out, e := json.Marshal(err)
+	out, mErr := json.Marshal(err)
 
 	expected := "{\"Message\":\"haha\"}"
-	assert.Nil(e)
+	assert.Nil(mErr)
 	assert.Equal(string(out), expected)
 
 	err = NewCode(ErrInvalidUserName)
-	out, e = json.Marshal(err)
+	out, mErr = json.Marshal(err)
 
 	errMsg := errorsCodeToMessage[ErrInvalidUserName]
 	expected = fmt.Sprintf("{\"Code\":%d,\"Message\":\"%s\"}", ErrInvalidUserName, errMsg)
-	assert.Nil(e)
+	assert.Nil(mErr)
 	assert.Equal(string(out), expected)
 
 	err = Wrap(errSomeError, "hihi")
-	out, e = json.Marshal(err)
+	out, mErr = json.Marshal(err)
 
-	// TODO: Fix this.
+	fmt.Printf("e: %v, err: %v\n", string(out), mErr)
+
 	expected = "{\"Message\":\"hihi\",\"Cause\":\"some error\"}"
-	assert.Nil(e)
+	assert.Nil(mErr)
 	assert.Equal(string(out), expected)
 }

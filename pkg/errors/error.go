@@ -3,6 +3,8 @@ package errors
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/sirupsen/logrus"
 )
 
 type ErrorWithCode interface {
@@ -114,22 +116,51 @@ func (e errorImpl) Code() ErrorCode {
 
 func (e errorImpl) MarshalJSON() ([]byte, error) {
 	if !e.hasCode {
-		return json.Marshal(struct {
-			Message string
-			Cause   error `json:",omitempty"`
-		}{
-			Message: e.Message,
-			Cause:   e.Cause,
-		})
+		return e.marshalTextError()
 	}
 
+	return e.marshalCodeError()
+}
+
+func (e errorImpl) marshalTextError() ([]byte, error) {
+	return json.Marshal(struct {
+		Message string
+		Cause   json.RawMessage `json:",omitempty"`
+	}{
+		Message: e.Message,
+		Cause:   e.marshalCause(),
+	})
+}
+
+func (e errorImpl) marshalCodeError() ([]byte, error) {
 	return json.Marshal(struct {
 		Code    ErrorCode
 		Message string
-		Cause   error `json:",omitempty"`
+		Cause   json.RawMessage `json:",omitempty"`
 	}{
 		Code:    e.Value,
 		Message: e.Message,
-		Cause:   e.Cause,
+		Cause:   e.marshalCause(),
 	})
+}
+
+func (e errorImpl) marshalCause() json.RawMessage {
+	if e.Cause == nil {
+		return nil
+	}
+
+	var out []byte
+	var err error
+
+	if impl, ok := e.Cause.(errorImpl); ok {
+		out, err = json.Marshal(impl)
+	} else {
+		out, err = json.Marshal(e.Cause.Error())
+	}
+
+	if err != nil {
+		logrus.Errorf("Failed to marshal cause %v (%v)", e.Cause, err)
+	}
+
+	return out
 }
