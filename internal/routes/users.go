@@ -17,7 +17,7 @@ func UsersRouter(udb users.UserDb) http.Handler {
 	r := chi.NewRouter()
 
 	r.Route("/", func(r chi.Router) {
-		r.Use(requestCtx)
+		r.Use(requestCtx, authenticationCtx)
 		r.Get("/", generateListUsersHandler(udb))
 
 		r.Route("/{user}", func(r chi.Router) {
