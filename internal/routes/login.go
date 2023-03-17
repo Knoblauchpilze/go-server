@@ -1,13 +1,10 @@
 package routes
 
 import (
-	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/KnoblauchPilze/go-server/pkg/auth"
 	"github.com/KnoblauchPilze/go-server/pkg/errors"
-	"github.com/KnoblauchPilze/go-server/pkg/rest"
 	"github.com/KnoblauchPilze/go-server/pkg/types"
 	"github.com/KnoblauchPilze/go-server/pkg/users"
 	"github.com/go-chi/chi/v5"
@@ -19,27 +16,11 @@ import (
 
 var LoginURLRoute = "/login"
 
-var loginRequestDataKey stringDataKeyType = "loginData"
-
-func loginCtx(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var loginData types.UserData
-
-		if err := rest.GetBodyFromHttpRequestAs(r, &loginData); err != nil {
-			http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
-			return
-		}
-
-		ctx := context.WithValue(r.Context(), loginRequestDataKey, loginData)
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
-}
-
 func LoginRouter(udb users.UserDb, tokens auth.Auth) http.Handler {
 	r := chi.NewRouter()
 
 	r.Route("/", func(r chi.Router) {
-		r.Use(requestCtx, loginCtx)
+		r.Use(requestCtx)
 		r.Post("/", generateLoginHandler(udb, tokens))
 	})
 
@@ -48,47 +29,52 @@ func LoginRouter(udb users.UserDb, tokens auth.Auth) http.Handler {
 
 func generateLoginHandler(udb users.UserDb, tokens auth.Auth) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		resp := buildServerResponseFromHttpRequest(r)
-
-		ctx := r.Context()
-		data, ok := ctx.Value(loginRequestDataKey).(types.UserData)
+		reqData, ok := getRequestDataFromContextOrFail(w, r)
 		if !ok {
-			resp.WithCode(http.StatusUnprocessableEntity)
-			resp.Write(w)
 			return
 		}
 
-		user, err := udb.GetUserFromName(data.Name)
+		var err error
+		var in types.UserData
+
+		if in, err = getUserDataFromRequest(r); err != nil {
+			reqData.failWithErrorAndCode(err, http.StatusBadRequest, w)
+			return
+		}
+
+		user, err := udb.GetUserFromName(in.Name)
 		if err != nil {
-			resp.WithCode(http.StatusBadRequest)
-			resp.WithDetails(err)
-			resp.Write(w)
+			reqData.failWithErrorAndCode(err, http.StatusBadRequest, w)
 			return
 		}
 
-		if user.Password != data.Password {
-			resp.WithCode(http.StatusUnauthorized)
-			resp.WithDetails("wrong password provided")
-			resp.Write(w)
-			return
-		}
-
-		token, err := tokens.GenerateToken(user.ID, user.Password)
+		out, err := loginUser(in, user, udb, tokens)
 		if err != nil {
-			if errors.IsErrorWithCode(err, errors.ErrTokenAlreadyExists) {
-				err = errors.New("user already logged in")
-			}
-
-			resp.WithCode(http.StatusBadRequest)
-			resp.WithDetails(err)
-			resp.Write(w)
+			err = interpretLoginFailure(err)
+			reqData.failWithErrorAndCode(err, http.StatusBadRequest, w)
 			return
 		}
 
-		out := types.LoginResponse{
-			Token: token,
-		}
-		resp.WithDetails(out)
-		resp.Write(w)
+		reqData.writeDetails(out, w)
 	}
+}
+
+func loginUser(in types.UserData, ud users.User, udb users.UserDb, tokens auth.Auth) (types.LoginResponse, error) {
+	var err error
+	var out types.LoginResponse
+
+	if in.Password != ud.Password {
+		return out, errors.New("wrong password provided")
+	}
+
+	out.Token, err = tokens.GenerateToken(ud.ID, ud.Password)
+	return out, err
+}
+
+func interpretLoginFailure(err error) error {
+	if errors.IsErrorWithCode(err, errors.ErrTokenAlreadyExists) {
+		return errors.Wrap(err, "user already logged in")
+	}
+
+	return err
 }

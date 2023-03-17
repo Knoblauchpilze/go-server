@@ -1,12 +1,9 @@
 package routes
 
 import (
-	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/KnoblauchPilze/go-server/pkg/errors"
-	"github.com/KnoblauchPilze/go-server/pkg/rest"
 	"github.com/KnoblauchPilze/go-server/pkg/types"
 	"github.com/KnoblauchPilze/go-server/pkg/users"
 	"github.com/go-chi/chi/v5"
@@ -14,27 +11,11 @@ import (
 
 var SignUpURLRoute = "/signup"
 
-var signUpRequestDataKey stringDataKeyType = "signupData"
-
-func signUpCtx(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var signUpData types.UserData
-
-		if err := rest.GetBodyFromHttpRequestAs(r, &signUpData); err != nil {
-			http.Error(w, fmt.Sprintf("%v", err), http.StatusBadRequest)
-			return
-		}
-
-		ctx := context.WithValue(r.Context(), signUpRequestDataKey, signUpData)
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
-}
-
 func SignUpRouter(udb users.UserDb) http.Handler {
 	r := chi.NewRouter()
 
 	r.Route("/", func(r chi.Router) {
-		r.Use(requestCtx, signUpCtx)
+		r.Use(requestCtx)
 		r.Post("/", generateSignUpHandler(udb))
 	})
 
@@ -43,33 +24,43 @@ func SignUpRouter(udb users.UserDb) http.Handler {
 
 func generateSignUpHandler(udb users.UserDb) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		resp := buildServerResponseFromHttpRequest(r)
-
-		ctx := r.Context()
-		data, ok := ctx.Value(signUpRequestDataKey).(types.UserData)
+		reqData, ok := getRequestDataFromContextOrFail(w, r)
 		if !ok {
-			resp.WithCode(http.StatusUnprocessableEntity)
-			resp.Write(w)
 			return
 		}
 
-		id, err := udb.AddUser(data.Name, data.Password)
+		var err error
+		var ud types.UserData
+
+		if ud, err = getUserDataFromRequest(r); err != nil {
+			reqData.failWithErrorAndCode(err, http.StatusBadRequest, w)
+			return
+		}
+
+		out, err := signUpUser(ud, udb)
 		if err != nil {
-			errCode := http.StatusBadRequest
-			if errors.IsErrorWithCode(err, errors.ErrUserCreationFailure) {
-				errCode = http.StatusInternalServerError
-			}
-
-			resp.WithCode(errCode)
-			resp.WithDetails(err)
-			resp.Write(w)
+			errCode := interpretSignUpFailure(err)
+			reqData.failWithErrorAndCode(err, errCode, w)
 			return
 		}
 
-		out := types.SignUpResponse{
-			ID: id,
-		}
-		resp.WithDetails(out)
-		resp.Write(w)
+		reqData.writeDetails(out, w)
 	}
+}
+
+func signUpUser(ud types.UserData, udb users.UserDb) (types.SignUpResponse, error) {
+	var err error
+	var out types.SignUpResponse
+
+	out.ID, err = udb.AddUser(ud.Name, ud.Password)
+	return out, err
+}
+
+func interpretSignUpFailure(err error) int {
+	errCode := http.StatusBadRequest
+	if errors.IsErrorWithCode(err, errors.ErrUserCreationFailure) {
+		errCode = http.StatusInternalServerError
+	}
+
+	return errCode
 }

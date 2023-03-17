@@ -9,34 +9,49 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var requestIdDataKey stringDataKeyType = "requestId"
+type requestData struct {
+	id       uuid.UUID
+	response rest.Response
+}
+
+var requestDataKey stringDataKeyType = "requestData"
+
+func newRequestData() requestData {
+	var out requestData
+
+	out.id, _ = uuid.NewUUID()
+	out.response = rest.NewSuccessResponse(out.id)
+
+	return out
+}
+
+func (rd requestData) failWithErrorAndCode(err error, code int, w http.ResponseWriter) {
+	rd.response.WithCode(code)
+	rd.response.WithDetails(err)
+	rd.response.Write(w)
+}
+
+func (rd requestData) writeDetails(details interface{}, w http.ResponseWriter) {
+	rd.response.WithDetails(details)
+	rd.response.Write(w)
+}
 
 func requestCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		id, err := uuid.NewUUID()
-		if err != nil {
-			logrus.Errorf("Failed to generate uuid (%v)", err)
-			code := http.StatusInternalServerError
-			http.Error(w, http.StatusText(code), code)
-			return
-		}
+		rd := newRequestData()
 
-		ctx := context.WithValue(r.Context(), requestIdDataKey, id)
+		ctx := context.WithValue(r.Context(), requestDataKey, rd)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
-func buildServerResponseFromHttpRequest(r *http.Request) rest.Response {
-	var err error
-
+func getRequestDataFromContextOrFail(w http.ResponseWriter, r *http.Request) (requestData, bool) {
 	ctx := r.Context()
-	id, ok := ctx.Value(requestIdDataKey).(uuid.UUID)
+	reqData, ok := ctx.Value(requestDataKey).(requestData)
 	if !ok {
-		id, err = uuid.NewUUID()
-		if err != nil {
-			logrus.Errorf("Failed to generate request ID (%v)", err)
-		}
+		logrus.Errorf("Failed to get request data")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	}
 
-	return rest.NewSuccessResponse(id)
+	return reqData, ok
 }
