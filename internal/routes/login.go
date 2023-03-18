@@ -5,6 +5,7 @@ import (
 
 	"github.com/KnoblauchPilze/go-server/pkg/auth"
 	"github.com/KnoblauchPilze/go-server/pkg/errors"
+	"github.com/KnoblauchPilze/go-server/pkg/middlewares"
 	"github.com/KnoblauchPilze/go-server/pkg/types"
 	"github.com/KnoblauchPilze/go-server/pkg/users"
 	"github.com/go-chi/chi/v5"
@@ -20,7 +21,7 @@ func LoginRouter(udb users.UserDb, tokens auth.Auth) http.Handler {
 	r := chi.NewRouter()
 
 	r.Route("/", func(r chi.Router) {
-		r.Use(requestCtx)
+		r.Use(middlewares.RequestCtx)
 		r.Post("/", generateLoginHandler(udb, tokens))
 	})
 
@@ -29,7 +30,7 @@ func LoginRouter(udb users.UserDb, tokens auth.Auth) http.Handler {
 
 func generateLoginHandler(udb users.UserDb, tokens auth.Auth) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		reqData, ok := getRequestDataFromContextOrFail(w, r)
+		reqData, ok := middlewares.GetRequestDataFromContextOrFail(w, r)
 		if !ok {
 			return
 		}
@@ -38,24 +39,24 @@ func generateLoginHandler(udb users.UserDb, tokens auth.Auth) http.HandlerFunc {
 		var in types.UserData
 
 		if in, err = getUserDataFromRequest(r); err != nil {
-			reqData.failWithErrorAndCode(err, http.StatusBadRequest, w)
+			reqData.FailWithErrorAndCode(err, http.StatusBadRequest, w)
 			return
 		}
 
 		user, err := udb.GetUserFromName(in.Name)
 		if err != nil {
-			reqData.failWithErrorAndCode(err, http.StatusBadRequest, w)
+			reqData.FailWithErrorAndCode(err, http.StatusBadRequest, w)
 			return
 		}
 
 		out, err := loginUser(in, user, udb, tokens)
 		if err != nil {
 			err = interpretLoginFailure(err)
-			reqData.failWithErrorAndCode(err, http.StatusBadRequest, w)
+			reqData.FailWithErrorAndCode(err, http.StatusBadRequest, w)
 			return
 		}
 
-		reqData.writeDetails(out, w)
+		reqData.WriteDetails(out, w)
 	}
 }
 

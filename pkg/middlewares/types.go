@@ -1,3 +1,3 @@
-package routes
+package middlewares
 
 type stringDataKeyType string

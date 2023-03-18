@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/KnoblauchPilze/go-server/pkg/errors"
+	"github.com/KnoblauchPilze/go-server/pkg/middlewares"
 	"github.com/KnoblauchPilze/go-server/pkg/types"
 	"github.com/KnoblauchPilze/go-server/pkg/users"
 	"github.com/go-chi/chi/v5"
@@ -15,7 +16,7 @@ func SignUpRouter(udb users.UserDb) http.Handler {
 	r := chi.NewRouter()
 
 	r.Route("/", func(r chi.Router) {
-		r.Use(requestCtx)
+		r.Use(middlewares.RequestCtx)
 		r.Post("/", generateSignUpHandler(udb))
 	})
 
@@ -24,7 +25,7 @@ func SignUpRouter(udb users.UserDb) http.Handler {
 
 func generateSignUpHandler(udb users.UserDb) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		reqData, ok := getRequestDataFromContextOrFail(w, r)
+		reqData, ok := middlewares.GetRequestDataFromContextOrFail(w, r)
 		if !ok {
 			return
 		}
@@ -33,18 +34,18 @@ func generateSignUpHandler(udb users.UserDb) http.HandlerFunc {
 		var ud types.UserData
 
 		if ud, err = getUserDataFromRequest(r); err != nil {
-			reqData.failWithErrorAndCode(err, http.StatusBadRequest, w)
+			reqData.FailWithErrorAndCode(err, http.StatusBadRequest, w)
 			return
 		}
 
 		out, err := signUpUser(ud, udb)
 		if err != nil {
 			errCode := interpretSignUpFailure(err)
-			reqData.failWithErrorAndCode(err, errCode, w)
+			reqData.FailWithErrorAndCode(err, errCode, w)
 			return
 		}
 
-		reqData.writeDetails(out, w)
+		reqData.WriteDetails(out, w)
 	}
 }
 

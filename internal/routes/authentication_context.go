@@ -7,6 +7,7 @@ import (
 
 	"github.com/KnoblauchPilze/go-server/pkg/auth"
 	"github.com/KnoblauchPilze/go-server/pkg/errors"
+	"github.com/KnoblauchPilze/go-server/pkg/middlewares"
 	"github.com/KnoblauchPilze/go-server/pkg/rest"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
@@ -22,36 +23,36 @@ func generateAuthenticationContext(tokens auth.Auth) func(http.Handler) http.Han
 			// https://stackoverflow.com/questions/33265812/best-http-authorization-header-type-for-jwt
 			// https://reqbin.com/req/5k564bhv/get-request-bearer-token-authorization-header-example
 			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization
-			reqData, ok := getRequestDataFromContextOrFail(w, r)
+			reqData, ok := middlewares.GetRequestDataFromContextOrFail(w, r)
 			if !ok {
 				return
 			}
 
 			authData, err := rest.GetSingleHeaderFromHttpRequest(r, "Authorization")
 			if err != nil {
-				reqData.failWithErrorAndCode(err, http.StatusBadRequest, w)
+				reqData.FailWithErrorAndCode(err, http.StatusBadRequest, w)
 				return
 			}
 
 			token, err := parseAuthenticationHeader(authData)
 			if err != nil {
-				reqData.failWithErrorAndCode(err, http.StatusBadRequest, w)
+				reqData.FailWithErrorAndCode(err, http.StatusBadRequest, w)
 				return
 			}
 
 			check, err := tokens.GetToken(token.User)
 			if err != nil {
 				logrus.Errorf("Authentication failure: %+v", err)
-				reqData.failWithErrorAndCode(errors.NewCode(errors.ErrAuthenticationFailure), http.StatusUnauthorized, w)
+				reqData.FailWithErrorAndCode(errors.NewCode(errors.ErrAuthenticationFailure), http.StatusUnauthorized, w)
 				return
 			}
 			if token.Value != check.Value {
 				logrus.Errorf("Provided token %+v doesn't match registered %+v", token, check)
-				reqData.failWithErrorAndCode(errors.NewCode(errors.ErrAuthenticationFailure), http.StatusUnauthorized, w)
+				reqData.FailWithErrorAndCode(errors.NewCode(errors.ErrAuthenticationFailure), http.StatusUnauthorized, w)
 				return
 			}
 			if time.Now().After(check.Expiration) {
-				reqData.failWithErrorAndCode(errors.NewCode(errors.ErrAuthenticationExpired), http.StatusUnauthorized, w)
+				reqData.FailWithErrorAndCode(errors.NewCode(errors.ErrAuthenticationExpired), http.StatusUnauthorized, w)
 				return
 			}
 
