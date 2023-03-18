@@ -8,7 +8,7 @@ import (
 )
 
 type User struct {
-	ID       uuid.UUID
+	Id       uuid.UUID
 	Name     string
 	Password string
 }
@@ -67,7 +67,7 @@ func (udb *UserDbImpl) GetUser(id uuid.UUID) (User, error) {
 	defer udb.lock.Unlock()
 
 	user := User{
-		ID: id,
+		Id: id,
 	}
 
 	name, ok := udb.ids[id]
@@ -108,7 +108,7 @@ func (udb *UserDbImpl) GetUserFromName(name string) (User, error) {
 		return user, errors.NewCode(errors.ErrNoSuchUser)
 	}
 
-	user.ID = id
+	user.Id = id
 	user.Password = password
 
 	return user, nil

@@ -89,14 +89,14 @@ func parseAuthenticationHeader(authData string) (auth.Token, error) {
 		props[keyValue[0]] = keyValue[1]
 	}
 
-	userID, ok := props[authenticationUserKey]
+	userId, ok := props[authenticationUserKey]
 	if !ok {
 		err := errors.Newf("no \"%s\" key in Authorization header", authenticationUserKey)
 		return out, errors.Wrap(err, genErrMsg)
 	}
-	id, err := uuid.Parse(userID)
+	id, err := uuid.Parse(userId)
 	if err != nil {
-		err := errors.Wrapf(err, "failed to parse user id \"%s\"", userID)
+		err := errors.Wrapf(err, "failed to parse user id \"%s\"", userId)
 		return out, errors.Wrap(err, genErrMsg)
 	}
 

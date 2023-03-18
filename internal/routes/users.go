@@ -12,7 +12,7 @@ import (
 
 var UsersURLRoute = "/users"
 
-var userIDDataKey = "user"
+var userIdDataKey = "user"
 
 func UsersRouter(udb users.UserDb, tokens auth.Auth) http.Handler {
 	r := chi.NewRouter()
@@ -49,7 +49,7 @@ func generateUsersHandler(udb users.UserDb) http.HandlerFunc {
 			return
 		}
 
-		id, err := getUserIDFromRequest(r)
+		id, err := getUserIdFromRequest(r)
 		if err != nil {
 			reqData.failWithErrorAndCode(err, http.StatusBadRequest, w)
 			return
@@ -65,13 +65,13 @@ func generateUsersHandler(udb users.UserDb) http.HandlerFunc {
 	}
 }
 
-func getUserIDFromRequest(r *http.Request) (uuid.UUID, error) {
+func getUserIdFromRequest(r *http.Request) (uuid.UUID, error) {
 	var err error
 	var id uuid.UUID
 
-	qp := chi.URLParam(r, userIDDataKey)
+	qp := chi.URLParam(r, userIdDataKey)
 	if len(qp) == 0 {
-		return id, errors.New("no user ID provided")
+		return id, errors.New("no user Id provided")
 	}
 
 	id, err = uuid.Parse(qp)
