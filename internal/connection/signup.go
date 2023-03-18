@@ -1,33 +1,25 @@
 package connection
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"net/http"
 
-	"github.com/KnoblauchPilze/go-server/pkg/errors"
 	"github.com/KnoblauchPilze/go-server/pkg/rest"
 	"github.com/KnoblauchPilze/go-server/pkg/types"
 )
 
 func SignUp(in types.UserData) (types.SignUpResponse, error) {
-	data, err := json.Marshal(in)
+	var out types.SignUpResponse
+
+	url := fmt.Sprintf("%s/signup", serverURL)
+	resp, err := performPostRequest(url, map[string][]string{}, "application/json", in)
 	if err != nil {
-		return types.SignUpResponse{}, errors.WrapCode(err, errors.ErrPostInvalidData)
+		return out, err
 	}
 
-	singUpURL := fmt.Sprintf("%s/signup", serverURL)
-	resp, err := http.Post(singUpURL, "application/json", bytes.NewReader(data))
+	err = rest.GetBodyFromHttpResponseAs(resp, &out)
 	if err != nil {
-		return types.SignUpResponse{}, errors.WrapCode(err, errors.ErrPostRequestFailed)
+		return out, err
 	}
 
-	var login types.SignUpResponse
-	err = rest.GetBodyFromHttpResponseAs(resp, &login)
-	if err != nil {
-		return types.SignUpResponse{}, err
-	}
-
-	return login, nil
+	return out, nil
 }
