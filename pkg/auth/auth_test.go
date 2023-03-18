@@ -51,7 +51,7 @@ func TestGetToken(t *testing.T) {
 	assert.Equal(token.Expiration, check.Expiration)
 }
 
-func TestGetToken_InvalidID(t *testing.T) {
+func TestGetToken_InvalidId(t *testing.T) {
 	assert := assert.New(t)
 
 	auth := NewAuth()

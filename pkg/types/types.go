@@ -11,7 +11,7 @@ type UserData struct {
 }
 
 type SignUpResponse struct {
-	ID uuid.UUID
+	Id uuid.UUID
 }
 
 type LoginResponse struct {

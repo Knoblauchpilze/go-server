@@ -52,7 +52,7 @@ func signUpUser(ud types.UserData, udb users.UserDb) (types.SignUpResponse, erro
 	var err error
 	var out types.SignUpResponse
 
-	out.ID, err = udb.AddUser(ud.Name, ud.Password)
+	out.Id, err = udb.AddUser(ud.Name, ud.Password)
 	return out, err
 }
 

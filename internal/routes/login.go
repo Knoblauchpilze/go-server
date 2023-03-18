@@ -67,7 +67,7 @@ func loginUser(in types.UserData, ud users.User, udb users.UserDb, tokens auth.A
 		return out, errors.New("wrong password provided")
 	}
 
-	out.Token, err = tokens.GenerateToken(ud.ID, ud.Password)
+	out.Token, err = tokens.GenerateToken(ud.Id, ud.Password)
 	return out, err
 }
 

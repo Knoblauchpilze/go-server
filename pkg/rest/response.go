@@ -21,7 +21,7 @@ type Response interface {
 }
 
 type responseImpl struct {
-	RequestID uuid.UUID
+	RequestId uuid.UUID
 	Status    string
 	Details   json.RawMessage `json:",omitempty"`
 	code      int
@@ -32,7 +32,7 @@ var StatusNOK = "ERROR"
 
 func NewSuccessResponse(id uuid.UUID) Response {
 	return &responseImpl{
-		RequestID: id,
+		RequestId: id,
 		Status:    StatusOK,
 		code:      http.StatusOK,
 	}
@@ -40,7 +40,7 @@ func NewSuccessResponse(id uuid.UUID) Response {
 
 func NewErrorResponse(id uuid.UUID) Response {
 	return &responseImpl{
-		RequestID: id,
+		RequestId: id,
 		Status:    StatusNOK,
 		code:      http.StatusOK,
 	}

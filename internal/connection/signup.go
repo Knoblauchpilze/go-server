@@ -22,8 +22,8 @@ func (si *sessionImpl) SignUp(in types.UserData) error {
 		return err
 	}
 
-	si.userID = out.ID
-	logrus.Infof("Signed up with id %v", si.userID)
+	si.userId = out.Id
+	logrus.Infof("Signed up with id %v", si.userId)
 
 	return nil
 }

@@ -10,7 +10,7 @@ import (
 )
 
 type sessionImpl struct {
-	userID uuid.UUID
+	userId uuid.UUID
 	token  auth.Token
 }
 
