@@ -3,6 +3,7 @@ package routes
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/KnoblauchPilze/go-server/pkg/auth"
 	"github.com/KnoblauchPilze/go-server/pkg/errors"
@@ -39,8 +40,20 @@ func generateAuthenticationContext(tokens auth.Auth) func(http.Handler) http.Han
 			}
 
 			check, err := tokens.GetToken(token.User)
-
-			logrus.Warnf("Should check token: %+v (%+v, %+v)", token, check, err)
+			if err != nil {
+				logrus.Errorf("Authentication failure: %+v", err)
+				reqData.failWithErrorAndCode(errors.NewCode(errors.ErrAuthenticationFailure), http.StatusUnauthorized, w)
+				return
+			}
+			if token.Value != check.Value {
+				logrus.Errorf("Provided token %+v doesn't match registered %+v", token, check)
+				reqData.failWithErrorAndCode(errors.NewCode(errors.ErrAuthenticationFailure), http.StatusUnauthorized, w)
+				return
+			}
+			if time.Now().After(check.Expiration) {
+				reqData.failWithErrorAndCode(errors.NewCode(errors.ErrAuthenticationExpired), http.StatusUnauthorized, w)
+				return
+			}
 
 			next.ServeHTTP(w, r)
 		})

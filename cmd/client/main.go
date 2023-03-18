@@ -14,67 +14,56 @@ func main() {
 		return
 	}
 
-	command := os.Args[1]
+	sess := connection.NewSession()
 
+	command := os.Args[1]
 	switch command {
 	case "signup":
-		signUp()
+		signUp(sess)
 	case "login":
-		login()
+		login(sess)
 	case "list":
-		list()
+		listCLI(sess)
 	default:
 		logrus.Errorf("Unknown command \"%s\"", command)
 	}
 }
 
-func signUp() {
-	userData := types.UserData{
-		Name:     "toto",
-		Password: "123456",
-	}
-
-	if len(os.Args) > 2 {
-		userData.Name = os.Args[2]
-	}
-
-	if len(os.Args) > 3 {
-		userData.Password = os.Args[3]
-	}
-
-	data, err := connection.SignUp(userData)
-	if err != nil {
+func signUp(sess connection.Session) {
+	ud := fetchCredentialsOrDefault()
+	if err := sess.SignUp(ud); err != nil {
 		logrus.Fatalf("Sign up failed: %+v", err)
-		return
 	}
-
-	logrus.Infof("Signed up with id %+v!", data)
 }
 
-func login() {
-	userData := types.UserData{
+func login(sess connection.Session) {
+	ud := fetchCredentialsOrDefault()
+	if err := sess.Login(ud); err != nil {
+		logrus.Fatalf("Login failed: %+v", err)
+	}
+}
+
+func fetchCredentialsOrDefault() types.UserData {
+	ud := types.UserData{
 		Name:     "toto",
 		Password: "123456",
 	}
 
 	if len(os.Args) > 2 {
-		userData.Name = os.Args[2]
+		ud.Name = os.Args[2]
 	}
 
 	if len(os.Args) > 3 {
-		userData.Password = os.Args[3]
+		ud.Password = os.Args[3]
 	}
 
-	data, err := connection.Login(userData)
-	if err != nil {
-		logrus.Fatalf("Login failed: %+v", err)
-		return
-	}
-
-	logrus.Infof("Logged in and received token %+v!", data)
+	return ud
 }
 
-func list() {
+func listCLI(sess connection.Session) {
+	signUp(sess)
+	login(sess)
+
 	if len(os.Args) < 3 {
 		logrus.Fatalf("Nothing to list")
 		return
@@ -83,19 +72,14 @@ func list() {
 	item := os.Args[2]
 	switch item {
 	case "users":
-		listUsers()
+		listUsers(sess)
 	default:
 		logrus.Fatalf("Unrecognized item to list: \"%v\"", item)
 	}
 }
 
-func listUsers() {
-	userData := types.UserData{
-		Name:     "toto",
-		Password: "123456",
-	}
-
-	data, err := connection.ListUsers(userData)
+func listUsers(sess connection.Session) {
+	data, err := sess.ListUsers()
 	if err != nil {
 		logrus.Fatalf("Failed to list users: %+v", err)
 		return

@@ -5,21 +5,25 @@ import (
 
 	"github.com/KnoblauchPilze/go-server/pkg/rest"
 	"github.com/KnoblauchPilze/go-server/pkg/types"
+	"github.com/sirupsen/logrus"
 )
 
-func SignUp(in types.UserData) (types.SignUpResponse, error) {
+func (si *sessionImpl) SignUp(in types.UserData) error {
 	var out types.SignUpResponse
 
 	url := fmt.Sprintf("%s/signup", serverURL)
 	resp, err := performPostRequest(url, map[string][]string{}, "application/json", in)
 	if err != nil {
-		return out, err
+		return err
 	}
 
 	err = rest.GetBodyFromHttpResponseAs(resp, &out)
 	if err != nil {
-		return out, err
+		return err
 	}
 
-	return out, nil
+	si.userID = out.ID
+	logrus.Infof("Signed up with id %v", si.userID)
+
+	return nil
 }

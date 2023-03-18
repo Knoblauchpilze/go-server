@@ -12,6 +12,9 @@ const (
 
 	ErrNoSuchToken
 	ErrTokenAlreadyExists
+	ErrAuthenticationFailure
+	ErrAuthenticationExpired
+	ErrNotLoggedIn
 
 	ErrFailedToGetBody
 	ErrBodyParsingFailed
@@ -34,8 +37,11 @@ var errorsCodeToMessage = map[ErrorCode]string{
 	ErrUserCreationFailure: "internal error while creating user",
 	ErrNoSuchUser:          "no such user",
 
-	ErrNoSuchToken:        "no such token",
-	ErrTokenAlreadyExists: "token already exists",
+	ErrNoSuchToken:           "no such token",
+	ErrTokenAlreadyExists:    "token already exists",
+	ErrAuthenticationFailure: "authentication failure",
+	ErrAuthenticationExpired: "authentication expired",
+	ErrNotLoggedIn:           "not logged in",
 
 	ErrFailedToGetBody:   "failed to get request body",
 	ErrBodyParsingFailed: "failed to parse request body",

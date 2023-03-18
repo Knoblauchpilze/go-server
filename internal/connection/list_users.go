@@ -5,16 +5,19 @@ import (
 
 	"github.com/KnoblauchPilze/go-server/pkg/errors"
 	"github.com/KnoblauchPilze/go-server/pkg/rest"
-	"github.com/KnoblauchPilze/go-server/pkg/types"
 	"github.com/google/uuid"
 )
 
-func ListUsers(ud types.UserData) ([]uuid.UUID, error) {
+func (si *sessionImpl) ListUsers() ([]uuid.UUID, error) {
 	var out []uuid.UUID
 
 	listUsersURL := fmt.Sprintf("%s/users", serverURL)
 
-	auth := generateAuthenticationHeader(ud)
+	auth, err := si.generateAuthenticationHeader()
+	if err != nil {
+		return out, err
+	}
+
 	headers := map[string][]string{
 		"Authorization": {auth},
 	}
