@@ -3,6 +3,7 @@ package routes
 import (
 	"net/http"
 
+	"github.com/KnoblauchPilze/go-server/pkg/auth"
 	"github.com/KnoblauchPilze/go-server/pkg/errors"
 	"github.com/KnoblauchPilze/go-server/pkg/users"
 	"github.com/go-chi/chi/v5"
@@ -13,11 +14,11 @@ var UsersURLRoute = "/users"
 
 var userIDDataKey = "user"
 
-func UsersRouter(udb users.UserDb) http.Handler {
+func UsersRouter(udb users.UserDb, tokens auth.Auth) http.Handler {
 	r := chi.NewRouter()
 
 	r.Route("/", func(r chi.Router) {
-		r.Use(requestCtx, authenticationCtx)
+		r.Use(requestCtx, generateAuthenticationContext(tokens))
 		r.Get("/", generateListUsersHandler(udb))
 
 		r.Route("/{user}", func(r chi.Router) {

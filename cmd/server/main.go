@@ -22,7 +22,7 @@ func main() {
 
 	r.Mount(routes.SignUpURLRoute, routes.SignUpRouter(udb))
 	r.Mount(routes.LoginURLRoute, routes.LoginRouter(udb, tokens))
-	r.Mount(routes.UsersURLRoute, routes.UsersRouter(udb))
+	r.Mount(routes.UsersURLRoute, routes.UsersRouter(udb, tokens))
 
 	fmt.Printf("Starting server on port 3000...\n")
 	http.ListenAndServe(":3000", r)
