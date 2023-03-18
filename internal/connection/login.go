@@ -5,21 +5,25 @@ import (
 
 	"github.com/KnoblauchPilze/go-server/pkg/rest"
 	"github.com/KnoblauchPilze/go-server/pkg/types"
+	"github.com/sirupsen/logrus"
 )
 
-func Login(in types.UserData) (types.LoginResponse, error) {
+func (si *sessionImpl) Login(in types.UserData) error {
 	var out types.LoginResponse
 
 	url := fmt.Sprintf("%s/login", serverURL)
 	resp, err := performPostRequest(url, map[string][]string{}, "application/json", in)
 	if err != nil {
-		return out, err
+		return err
 	}
 
 	err = rest.GetBodyFromHttpResponseAs(resp, &out)
 	if err != nil {
-		return out, err
+		return err
 	}
 
-	return out, nil
+	si.token = out.Token
+	logrus.Infof("Logged in, active token is %+v", si.token)
+
+	return nil
 }
