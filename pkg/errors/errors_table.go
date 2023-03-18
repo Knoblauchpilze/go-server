@@ -24,6 +24,7 @@ const (
 
 	ErrPostInvalidData
 	ErrPostRequestFailed
+	ErrGetRequestFailed
 )
 
 var errorsCodeToMessage = map[ErrorCode]string{
@@ -47,6 +48,7 @@ var errorsCodeToMessage = map[ErrorCode]string{
 
 	ErrPostInvalidData:   "invalid post request data",
 	ErrPostRequestFailed: "post request failed",
+	ErrGetRequestFailed:  "get request failed",
 }
 
 var defaultErrorMessage = "unexpected error occurred"

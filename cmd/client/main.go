@@ -21,6 +21,8 @@ func main() {
 		signUp()
 	case "login":
 		login()
+	case "list":
+		list()
 	default:
 		logrus.Errorf("Unknown command \"%s\"", command)
 	}
@@ -42,11 +44,11 @@ func signUp() {
 
 	data, err := connection.SignUp(userData)
 	if err != nil {
-		logrus.Fatalf("Sign up failed: %v", err)
+		logrus.Fatalf("Sign up failed: %+v", err)
 		return
 	}
 
-	logrus.Infof("Signed up with id %v!", data)
+	logrus.Infof("Signed up with id %+v!", data)
 }
 
 func login() {
@@ -65,9 +67,39 @@ func login() {
 
 	data, err := connection.Login(userData)
 	if err != nil {
-		logrus.Fatalf("Login failed: %v", err)
+		logrus.Fatalf("Login failed: %+v", err)
 		return
 	}
 
-	logrus.Infof("Logged in with id %v!", data)
+	logrus.Infof("Logged in and received token %+v!", data)
+}
+
+func list() {
+	if len(os.Args) < 3 {
+		logrus.Fatalf("Nothing to list")
+		return
+	}
+
+	item := os.Args[2]
+	switch item {
+	case "users":
+		listUsers()
+	default:
+		logrus.Fatalf("Unrecognized item to list: \"%v\"", item)
+	}
+}
+
+func listUsers() {
+	userData := types.UserData{
+		Name:     "toto",
+		Password: "123456",
+	}
+
+	data, err := connection.ListUsers(userData)
+	if err != nil {
+		logrus.Fatalf("Failed to list users: %+v", err)
+		return
+	}
+
+	logrus.Infof("Users: %+v", data)
 }
