@@ -60,7 +60,6 @@ func (ri *responseImpl) WithDetails(details interface{}) Response {
 	var out []byte
 	var err error
 
-	// Handle error interface.
 	out, err = json.Marshal(details)
 
 	if err != nil {
