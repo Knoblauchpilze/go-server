@@ -154,6 +154,22 @@ func TestResponse_Write(t *testing.T) {
 	assert.Equal(http.StatusOK, mrw.code)
 }
 
+func TestResponse_WriteError(t *testing.T) {
+	assert := assert.New(t)
+
+	id, _ := uuid.Parse(dummyId)
+	mrw := mockResponseWriter{}
+
+	resp := NewSuccessResponse(id)
+	resp.WithDetails(errSomeError)
+	resp.Write(&mrw)
+
+	expected := fmt.Sprintf("{\"RequestId\":\"%s\",\"Status\":\"%v\",\"Details\":{}}", dummyId, StatusOK)
+	assert.Equal(expected, string(mrw.data))
+	assert.Equal(http.StatusOK, mrw.code)
+
+}
+
 func TestGetBodyFromHttpResponseAs_InvalidResponse(t *testing.T) {
 	assert := assert.New(t)
 
