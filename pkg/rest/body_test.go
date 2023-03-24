@@ -56,6 +56,6 @@ func TestGetBodyFromHttpRequestAs(t *testing.T) {
 
 	err := GetBodyFromHttpRequestAs(req, &out)
 	assert.Nil(err)
-	assert.Equal(out.Bar, in.Bar)
-	assert.Equal(out.Baz, in.Baz)
+	assert.Equal(in.Bar, out.Bar)
+	assert.Equal(in.Baz, out.Baz)
 }
