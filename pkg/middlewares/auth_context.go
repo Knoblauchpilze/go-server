@@ -1,4 +1,4 @@
-package routes
+package middlewares
 
 import (
 	"net/http"
@@ -7,7 +7,6 @@ import (
 
 	"github.com/KnoblauchPilze/go-server/pkg/auth"
 	"github.com/KnoblauchPilze/go-server/pkg/errors"
-	"github.com/KnoblauchPilze/go-server/pkg/middlewares"
 	"github.com/KnoblauchPilze/go-server/pkg/rest"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
@@ -17,13 +16,15 @@ var authenticationScheme = "bearer"
 var authenticationUserKey = "user"
 var authenticationTokenKey = "token"
 
-func generateAuthenticationContext(tokens auth.Auth) func(http.Handler) http.Handler {
+var genErrMsg = "invalid authentication header"
+
+func GenerateAuthenticationContext(tokens auth.Auth) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// https://stackoverflow.com/questions/33265812/best-http-authorization-header-type-for-jwt
 			// https://reqbin.com/req/5k564bhv/get-request-bearer-token-authorization-header-example
 			// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization
-			reqData, ok := middlewares.GetRequestDataFromContextOrFail(w, r)
+			reqData, ok := GetRequestDataFromContextOrFail(w, r)
 			if !ok {
 				return
 			}
@@ -63,7 +64,6 @@ func generateAuthenticationContext(tokens auth.Auth) func(http.Handler) http.Han
 
 func parseAuthenticationHeader(authData string) (auth.Token, error) {
 	var out auth.Token
-	var genErrMsg = "invalid authentication header"
 
 	tokens := strings.Split(authData, " ")
 	if len(tokens) != 3 {
