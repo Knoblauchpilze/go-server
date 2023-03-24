@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"testing"
@@ -45,4 +46,30 @@ func TestRequestData_WriteDetails(t *testing.T) {
 	err = json.Unmarshal(resp.Details, &val)
 	assert.Nil(err)
 	assert.Equal(val, 32)
+}
+
+func TestGetRequestDataFromContextOrFail_EmptyContext(t *testing.T) {
+	assert := assert.New(t)
+
+	mrw := mockResponseWriter{}
+	req := http.Request{}
+
+	_, res := GetRequestDataFromContextOrFail(&mrw, &req)
+	assert.False(res)
+	assert.Equal(mrw.code, http.StatusInternalServerError)
+}
+
+func TestGetRequestDataFromContextOrFail_ValidContext(t *testing.T) {
+	assert := assert.New(t)
+
+	mrw := mockResponseWriter{}
+	req := new(http.Request)
+	inRd := NewRequestData()
+
+	ctx := context.WithValue(req.Context(), requestDataKey, inRd)
+	req = req.WithContext(ctx)
+
+	rd, res := GetRequestDataFromContextOrFail(&mrw, req)
+	assert.True(res)
+	assert.Equal(rd.Id, inRd.Id)
 }
