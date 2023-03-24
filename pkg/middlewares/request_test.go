@@ -73,3 +73,39 @@ func TestGetRequestDataFromContextOrFail_ValidContext(t *testing.T) {
 	assert.True(res)
 	assert.Equal(rd.Id, inRd.Id)
 }
+
+func TestGetRequestDataFromContextOrFail_WithContextWrapper(t *testing.T) {
+	assert := assert.New(t)
+
+	mrw := mockResponseWriter{}
+	req := new(http.Request)
+
+	next := RequestCtx(defaultHandler())
+	next.ServeHTTP(&mrw, req)
+
+	assert.Equal(mrw.code, http.StatusOK)
+	resp, err := unmarshalExpectedResponseBody(mrw.data)
+	assert.Nil(err)
+
+	assert.Equal(mrw.code, http.StatusOK)
+	assert.Equal(resp.Status, "SUCCESS")
+
+	var val bool
+	err = json.Unmarshal(resp.Details, &val)
+	assert.Nil(err)
+	assert.Equal(val, true)
+}
+
+func TestGetRequestDataFromContextOrFail_WithoutContextWrapper(t *testing.T) {
+	assert := assert.New(t)
+
+	mrw := mockResponseWriter{}
+	req := new(http.Request)
+
+	next := defaultHandler()
+	next.ServeHTTP(&mrw, req)
+
+	code := http.StatusInternalServerError
+	assert.Equal(mrw.code, code)
+	assert.Contains(string(mrw.data), http.StatusText(code))
+}
