@@ -17,7 +17,7 @@ func TestError_New(t *testing.T) {
 
 	impl, ok := err.(errorImpl)
 	assert.True(ok)
-	assert.Equal(impl.Message, "haha")
+	assert.Equal("haha", impl.Message)
 	assert.Nil(impl.Cause)
 	assert.False(impl.hasCode)
 }
@@ -30,7 +30,7 @@ func TestError_NewFromCode(t *testing.T) {
 
 	impl, ok := err.(errorImpl)
 	assert.True(ok)
-	assert.Equal(impl.Message, errMsg)
+	assert.Equal(errMsg, impl.Message)
 	assert.Nil(impl.Cause)
 	assert.True(impl.hasCode)
 	assert.Equal(ErrInvalidUserName, impl.Value)
@@ -39,7 +39,7 @@ func TestError_NewFromCode(t *testing.T) {
 
 	impl, ok = err.(errorImpl)
 	assert.True(ok)
-	assert.Equal(impl.Message, defaultErrorMessage)
+	assert.Equal(defaultErrorMessage, impl.Message)
 	assert.Nil(impl.Cause)
 	assert.True(impl.hasCode)
 	assert.Equal(ErrorCode(-40), impl.Value)
@@ -52,7 +52,7 @@ func TestError_Newf(t *testing.T) {
 
 	impl, ok := err.(errorImpl)
 	assert.True(ok)
-	assert.Equal(impl.Message, "haha 22")
+	assert.Equal("haha 22", impl.Message)
 	assert.Nil(impl.Cause)
 }
 
@@ -63,8 +63,8 @@ func TestError_Wrap(t *testing.T) {
 
 	impl, ok := err.(errorImpl)
 	assert.True(ok)
-	assert.Equal(impl.Message, "context")
-	assert.Equal(impl.Cause, errSomeError)
+	assert.Equal("context", impl.Message)
+	assert.Equal(errSomeError, impl.Cause)
 }
 
 func TestError_WrapCode(t *testing.T) {
@@ -75,8 +75,8 @@ func TestError_WrapCode(t *testing.T) {
 
 	impl, ok := err.(errorImpl)
 	assert.True(ok)
-	assert.Equal(impl.Message, errMsg)
-	assert.Equal(impl.Cause, errSomeError)
+	assert.Equal(errMsg, impl.Message)
+	assert.Equal(errSomeError, impl.Cause)
 	assert.True(impl.hasCode)
 	assert.Equal(ErrInvalidUserName, impl.Value)
 }
@@ -88,8 +88,8 @@ func TestError_Wrapf(t *testing.T) {
 
 	impl, ok := err.(errorImpl)
 	assert.True(ok)
-	assert.Equal(impl.Message, "context -44")
-	assert.Equal(impl.Cause, errSomeError)
+	assert.Equal("context -44", impl.Message)
+	assert.Equal(errSomeError, impl.Cause)
 }
 
 func TestError_Unwrap(t *testing.T) {
@@ -104,7 +104,7 @@ func TestError_Unwrap(t *testing.T) {
 
 	err = Wrap(errSomeError, "haha")
 	cause = Unwrap(err)
-	assert.Equal(cause, errSomeError)
+	assert.Equal(errSomeError, cause)
 
 	causeOfCause := Unwrap(cause)
 	assert.Nil(causeOfCause)
@@ -116,13 +116,13 @@ func TestError_Error(t *testing.T) {
 	err := Wrapf(errSomeError, "context %d", -44)
 
 	expected := "context -44 (cause: some error)"
-	assert.Equal(err.Error(), expected)
+	assert.Equal(expected, err.Error())
 
 	err = WrapCode(errSomeError, ErrInvalidUserName)
 
 	errMsg := errorsCodeToMessage[ErrInvalidUserName]
 	expected = fmt.Sprintf("(%d) %s (cause: some error)", ErrInvalidUserName, errMsg)
-	assert.Equal(err.Error(), expected)
+	assert.Equal(expected, err.Error())
 }
 
 func TestError_Code(t *testing.T) {
@@ -132,7 +132,7 @@ func TestError_Code(t *testing.T) {
 
 	impl, ok := err.(ErrorWithCode)
 	assert.True(ok)
-	assert.Equal(impl.Code(), ErrInvalidUserName)
+	assert.Equal(ErrInvalidUserName, impl.Code())
 }
 
 func TestError_MarshalJSON(t *testing.T) {
@@ -143,7 +143,7 @@ func TestError_MarshalJSON(t *testing.T) {
 
 	expected := "{\"Message\":\"haha\"}"
 	assert.Nil(mErr)
-	assert.Equal(string(out), expected)
+	assert.Equal(expected, string(out))
 
 	err = NewCode(ErrInvalidUserName)
 	out, mErr = json.Marshal(err)
@@ -151,21 +151,21 @@ func TestError_MarshalJSON(t *testing.T) {
 	errMsg := errorsCodeToMessage[ErrInvalidUserName]
 	expected = fmt.Sprintf("{\"Code\":%d,\"Message\":\"%s\"}", ErrInvalidUserName, errMsg)
 	assert.Nil(mErr)
-	assert.Equal(string(out), expected)
+	assert.Equal(expected, string(out))
 
 	err = Wrap(errSomeError, "hihi")
 	out, mErr = json.Marshal(err)
 
 	expected = "{\"Message\":\"hihi\",\"Cause\":\"some error\"}"
 	assert.Nil(mErr)
-	assert.Equal(string(out), expected)
+	assert.Equal(expected, string(out))
 
 	err = Wrap(New("haha"), "hihi")
 	out, mErr = json.Marshal(err)
 
 	expected = "{\"Message\":\"hihi\",\"Cause\":{\"Message\":\"haha\"}}"
 	assert.Nil(mErr)
-	assert.Equal(string(out), expected)
+	assert.Equal(expected, string(out))
 }
 
 func TestError_IsErrorWithCode(t *testing.T) {

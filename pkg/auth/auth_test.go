@@ -28,8 +28,8 @@ func TestGenerateToken(t *testing.T) {
 	token, err := auth.GenerateToken(user, "foo")
 
 	assert.Nil(err)
-	assert.Equal(token.User, user)
-	assert.GreaterOrEqual(len(token.Value), 1)
+	assert.Equal(user, token.User)
+	assert.Less(1, len(token.Value))
 	assert.True(time.Now().Before(token.Expiration))
 
 	_, err = auth.GenerateToken(user, "foo")
@@ -46,9 +46,9 @@ func TestGetToken(t *testing.T) {
 	token, err := auth.GetToken(user)
 
 	assert.Nil(err)
-	assert.Equal(token.User, check.User)
-	assert.Equal(token.Value, check.Value)
-	assert.Equal(token.Expiration, check.Expiration)
+	assert.Equal(check.User, token.User)
+	assert.Equal(check.Value, token.Value)
+	assert.Equal(check.Expiration, token.Expiration)
 }
 
 func TestGetToken_InvalidId(t *testing.T) {

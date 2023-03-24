@@ -34,7 +34,7 @@ func TestAddUser(t *testing.T) {
 
 	check, err := uuid.Parse(id.String())
 	assert.Nil(err)
-	assert.Equal(id, check)
+	assert.Equal(check, id)
 }
 
 func TestAddUser_Duplicated(t *testing.T) {
@@ -54,13 +54,13 @@ func TestGetUsers(t *testing.T) {
 	udb := NewUserDb()
 
 	ids := udb.GetUsers()
-	assert.Equal(len(ids), 0)
+	assert.Equal(0, len(ids))
 
 	id, _ := udb.AddUser("foo", "haha")
 
 	ids = udb.GetUsers()
-	assert.Equal(len(ids), 1)
-	assert.Equal(ids[0], id)
+	assert.Equal(1, len(ids))
+	assert.Equal(id, ids[0])
 }
 
 func TestGetUser_NoUsers(t *testing.T) {
@@ -93,9 +93,9 @@ func TestGetUser(t *testing.T) {
 	user, err := udb.GetUser(id)
 	assert.Nil(err)
 
-	assert.Equal(user.Id, id)
-	assert.Equal(user.Name, "foo")
-	assert.Equal(user.Password, "haha")
+	assert.Equal(id, user.Id)
+	assert.Equal("foo", user.Name)
+	assert.Equal("haha", user.Password)
 }
 
 func TestGetUserFromName_NoUsers(t *testing.T) {
@@ -129,7 +129,7 @@ func TestGetUserFromName(t *testing.T) {
 	user, err := udb.GetUserFromName("foo")
 	assert.Nil(err)
 
-	assert.Equal(user.Id, id)
-	assert.Equal(user.Name, "foo")
-	assert.Equal(user.Password, "haha")
+	assert.Equal(id, user.Id)
+	assert.Equal("foo", user.Name)
+	assert.Equal("haha", user.Password)
 }

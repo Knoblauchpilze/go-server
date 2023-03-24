@@ -2,10 +2,15 @@ package middlewares
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/KnoblauchPilze/go-server/pkg/auth"
 	"github.com/google/uuid"
 )
+
+var errSomeError = fmt.Errorf("some error")
 
 type mockResponseWriter struct {
 	code int
@@ -23,6 +28,30 @@ func (mrw *mockResponseWriter) Write(out []byte) (int, error) {
 
 func (mrw *mockResponseWriter) WriteHeader(statusCode int) {
 	mrw.code = statusCode
+}
+
+type mockAuth struct {
+	isError    bool
+	token      string
+	expiration time.Time
+}
+
+func (ma mockAuth) GenerateToken(user uuid.UUID, password string) (auth.Token, error) {
+	if ma.isError {
+		return auth.Token{}, errSomeError
+	}
+
+	t := auth.Token{
+		User:       user,
+		Expiration: ma.expiration,
+		Value:      ma.token,
+	}
+
+	return t, nil
+}
+
+func (ma mockAuth) GetToken(user uuid.UUID) (auth.Token, error) {
+	return ma.GenerateToken(user, "hihi")
 }
 
 type expectedResponseBody struct {
