@@ -36,3 +36,12 @@ func unmarshalExpectedResponseBody(body []byte) (expectedResponseBody, error) {
 	err := json.Unmarshal(body, &out)
 	return out, err
 }
+
+func defaultHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		rd, res := GetRequestDataFromContextOrFail(w, r)
+		if res {
+			rd.WriteDetails(res, w)
+		}
+	})
+}
