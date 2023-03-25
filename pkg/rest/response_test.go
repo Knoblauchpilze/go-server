@@ -36,7 +36,7 @@ func generateResponseWithBody(body interface{}) *http.Response {
 func TestResponse_OK(t *testing.T) {
 	assert := assert.New(t)
 
-	id, _ := uuid.Parse(dummyId)
+	id := uuid.MustParse(dummyId)
 	mrw := mockResponseWriter{}
 
 	resp := NewSuccessResponse(id)
@@ -49,7 +49,7 @@ func TestResponse_OK(t *testing.T) {
 func TestResponse_NOK(t *testing.T) {
 	assert := assert.New(t)
 
-	id, _ := uuid.Parse(dummyId)
+	id := uuid.MustParse(dummyId)
 	mrw := mockResponseWriter{}
 
 	resp := NewErrorResponse(id)
@@ -62,7 +62,7 @@ func TestResponse_NOK(t *testing.T) {
 func TestResponse_Pass(t *testing.T) {
 	assert := assert.New(t)
 
-	id, _ := uuid.Parse(dummyId)
+	id := uuid.MustParse(dummyId)
 	mrw := mockResponseWriter{}
 
 	resp := NewErrorResponse(id)
@@ -76,7 +76,7 @@ func TestResponse_Pass(t *testing.T) {
 func TestResponse_Fail(t *testing.T) {
 	assert := assert.New(t)
 
-	id, _ := uuid.Parse(dummyId)
+	id := uuid.MustParse(dummyId)
 	mrw := mockResponseWriter{}
 
 	resp := NewSuccessResponse(id)
@@ -90,7 +90,7 @@ func TestResponse_Fail(t *testing.T) {
 func TestResponse_WithDetails(t *testing.T) {
 	assert := assert.New(t)
 
-	id, _ := uuid.Parse(dummyId)
+	id := uuid.MustParse(dummyId)
 	mrw := mockResponseWriter{}
 
 	resp := NewSuccessResponse(id)
@@ -114,7 +114,7 @@ func TestResponse_WithDetails(t *testing.T) {
 func TestResponse_WithCode(t *testing.T) {
 	assert := assert.New(t)
 
-	id, _ := uuid.Parse(dummyId)
+	id := uuid.MustParse(dummyId)
 	mrw := mockResponseWriter{}
 
 	resp := NewSuccessResponse(id)
@@ -136,7 +136,7 @@ func TestResponse_WithCode(t *testing.T) {
 func TestResponse_Write(t *testing.T) {
 	assert := assert.New(t)
 
-	id, _ := uuid.Parse(dummyId)
+	id := uuid.MustParse(dummyId)
 	mrw := mockResponseWriter{}
 
 	resp := NewSuccessResponse(id)
@@ -157,7 +157,7 @@ func TestResponse_Write(t *testing.T) {
 func TestResponse_WriteError(t *testing.T) {
 	assert := assert.New(t)
 
-	id, _ := uuid.Parse(dummyId)
+	id := uuid.MustParse(dummyId)
 	mrw := mockResponseWriter{}
 
 	resp := NewSuccessResponse(id)
