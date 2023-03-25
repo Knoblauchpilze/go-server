@@ -7,6 +7,7 @@ import (
 	"github.com/KnoblauchPilze/go-server/pkg/auth"
 	"github.com/KnoblauchPilze/go-server/pkg/errors"
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 )
 
 type sessionImpl struct {
@@ -16,6 +17,20 @@ type sessionImpl struct {
 
 func NewSession() Session {
 	return &sessionImpl{}
+}
+
+func (si *sessionImpl) Authenticate(token auth.Token) error {
+	if len(token.Value) == 0 {
+		return errors.NewCode(errors.ErrNotLoggedIn)
+	}
+	if time.Now().After(token.Expiration) {
+		logrus.Infof("now: %v, token: %v", time.Now(), token.Expiration)
+		return errors.NewCode(errors.ErrAuthenticationExpired)
+	}
+
+	si.token = token
+
+	return nil
 }
 
 func (si *sessionImpl) generateAuthenticationHeader() (string, error) {
