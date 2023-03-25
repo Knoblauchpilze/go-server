@@ -80,7 +80,7 @@ func TestGetRequestDataFromContextOrFail_WithContextWrapper(t *testing.T) {
 	mrw := mockResponseWriter{}
 	req := new(http.Request)
 
-	next := RequestCtx(defaultHandler())
+	next := RequestCtx(defaultHandler("haha"))
 	next.ServeHTTP(&mrw, req)
 
 	assert.Equal(http.StatusOK, mrw.code)
@@ -90,10 +90,10 @@ func TestGetRequestDataFromContextOrFail_WithContextWrapper(t *testing.T) {
 	assert.Equal(http.StatusOK, mrw.code)
 	assert.Equal("SUCCESS", resp.Status)
 
-	var val bool
+	var val string
 	err = json.Unmarshal(resp.Details, &val)
 	assert.Nil(err)
-	assert.Equal(true, val)
+	assert.Equal("haha", val)
 }
 
 func TestGetRequestDataFromContextOrFail_WithoutContextWrapper(t *testing.T) {
@@ -102,7 +102,7 @@ func TestGetRequestDataFromContextOrFail_WithoutContextWrapper(t *testing.T) {
 	mrw := mockResponseWriter{}
 	req := new(http.Request)
 
-	next := defaultHandler()
+	next := defaultHandler("haha")
 	next.ServeHTTP(&mrw, req)
 
 	code := http.StatusInternalServerError

@@ -66,11 +66,49 @@ func unmarshalExpectedResponseBody(body []byte) (expectedResponseBody, error) {
 	return out, err
 }
 
-func defaultHandler() http.Handler {
+func defaultHandler(msg string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		rd, res := GetRequestDataFromContextOrFail(w, r)
 		if res {
-			rd.WriteDetails(res, w)
+			rd.WriteDetails(msg, w)
 		}
 	})
+}
+
+type mockServer struct {
+	handler        http.Handler
+	auth           mockAuth
+	withRequestCtx bool
+	req            *http.Request
+	mrw            mockResponseWriter
+}
+
+func newMockServer(msg string) *mockServer {
+	return &mockServer{
+		handler: defaultHandler(msg),
+		auth: mockAuth{
+			isError:    false,
+			token:      msg,
+			expiration: time.Now(),
+		},
+		withRequestCtx: true,
+		req: &http.Request{
+			Header: make(map[string][]string),
+		},
+		mrw: mockResponseWriter{},
+	}
+}
+
+func (ms *mockServer) withAuthorization(header string) {
+	ms.req.Header["Authorization"] = []string{header}
+}
+
+func (ms *mockServer) call() {
+	server := GenerateAuthenticationContext(ms.auth)(ms.handler)
+
+	if ms.withRequestCtx {
+		server = RequestCtx(server)
+	}
+
+	server.ServeHTTP(&ms.mrw, ms.req)
 }
