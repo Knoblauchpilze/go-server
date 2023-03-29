@@ -7,18 +7,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var signUpCmd = &cobra.Command{
-	Use:   "sign-up",
-	Short: "Sign up to the server with the specified user",
+var loginCmd = &cobra.Command{
+	Use:   "login",
+	Short: "Login to the server with the specified credentials",
 	Args:  cobra.RangeArgs(0, 2),
-	Run:   signUpCmdBody,
+	Run:   loginCmdBody,
 }
 
 func init() {
-	rootCmd.AddCommand(signUpCmd)
+	rootCmd.AddCommand(loginCmd)
 }
 
-func signUpCmdBody(cmd *cobra.Command, args []string) {
+func loginCmdBody(cmd *cobra.Command, args []string) {
 	ud := types.UserData{
 		Name:     "toto",
 		Password: "123456",
@@ -31,11 +31,11 @@ func signUpCmdBody(cmd *cobra.Command, args []string) {
 		ud.Password = args[1]
 	}
 
-	logrus.Infof("signing up for %+v", ud)
+	logrus.Infof("logging in for %+v", ud)
 
 	sess := connection.NewSession()
-	if err := sess.SignUp(ud); err != nil {
-		logrus.Errorf("failed to sign up (%v)", err)
+	if err := sess.Login(ud); err != nil {
+		logrus.Errorf("failed to log in (%v)", err)
 		return
 	}
 }
