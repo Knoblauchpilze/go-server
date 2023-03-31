@@ -1,17 +1,10 @@
 package list
 
 import (
-	"time"
-
 	"github.com/KnoblauchPilze/go-server/internal/connection"
-	"github.com/KnoblauchPilze/go-server/pkg/auth"
-	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
-
-var userArg string
-var tokenArg string
 
 var usersCmd = &cobra.Command{
 	Use:   "users",
@@ -25,16 +18,10 @@ func init() {
 }
 
 func usersCmdBody(cmd *cobra.Command, args []string) {
-	id, err := uuid.Parse(userArg)
+	token, err := buildTokenFromFlags()
 	if err != nil {
-		logrus.Errorf("invalid user id provided (%v)", err)
+		logrus.Errorf("invalid parameters to list users (%v)", err)
 		return
-	}
-
-	token := auth.Token{
-		User:       id,
-		Value:      tokenArg,
-		Expiration: time.Now().Add(1 * time.Minute),
 	}
 
 	sess := connection.NewSession()
