@@ -107,8 +107,6 @@ func GetBodyFromHttpResponseAs(resp *http.Response, out interface{}) error {
 		return errors.WrapCode(err, errors.ErrFailedToGetBody)
 	}
 
-	logrus.Infof("h: %v", string(data))
-
 	var in responseImpl
 	err = json.Unmarshal(data, &in)
 	if err != nil {
