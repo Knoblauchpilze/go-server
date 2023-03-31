@@ -10,15 +10,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var userArg string
+var tokenArg string
+
 var usersCmd = &cobra.Command{
 	Use:   "users",
 	Short: "List all registered users",
-	Args:  cobra.ExactArgs(2),
 	Run:   usersCmdBody,
 }
 
+func init() {
+	usersCmd.Flags().StringVar(&userArg, "user", "", "the id of the user")
+	usersCmd.Flags().StringVar(&tokenArg, "token", "", "the token of the user")
+}
+
 func usersCmdBody(cmd *cobra.Command, args []string) {
-	id, err := uuid.Parse(args[0])
+	id, err := uuid.Parse(userArg)
 	if err != nil {
 		logrus.Errorf("invalid user id provided (%v)", err)
 		return
@@ -26,7 +33,7 @@ func usersCmdBody(cmd *cobra.Command, args []string) {
 
 	token := auth.Token{
 		User:       id,
-		Value:      args[1],
+		Value:      tokenArg,
 		Expiration: time.Now().Add(1 * time.Minute),
 	}
 
