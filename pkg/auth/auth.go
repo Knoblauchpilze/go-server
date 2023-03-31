@@ -24,7 +24,7 @@ type AuthImpl struct {
 	tokens map[uuid.UUID]Token
 }
 
-var TokenDefaultExpirationTime = 1 * time.Minute
+var TokenDefaultExpirationTime = 10 * time.Minute
 
 func NewAuth() Auth {
 	return &AuthImpl{

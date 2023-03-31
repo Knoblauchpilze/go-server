@@ -3,6 +3,7 @@ package connection
 import (
 	"github.com/KnoblauchPilze/go-server/pkg/auth"
 	"github.com/KnoblauchPilze/go-server/pkg/types"
+	"github.com/KnoblauchPilze/go-server/pkg/users"
 	"github.com/google/uuid"
 )
 
@@ -15,4 +16,5 @@ type Session interface {
 	Authenticate(token auth.Token) error
 
 	ListUsers() ([]uuid.UUID, error)
+	ListUser(id uuid.UUID) (users.User, error)
 }
