@@ -15,5 +15,9 @@ jobs:
         run: go get ./...
       - name: Build
         run: go build -v ./...
-      - name: Test with the Go CLI
+      - name: Run tests with the Go CLI
         run: go test ./...
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+
+
