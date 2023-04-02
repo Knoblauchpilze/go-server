@@ -17,4 +17,4 @@ We used the [chi](https://github.com/go-chi/chi) router to handle the routing. T
 
 We got a nice code coverage badge:
 
-[![codecov](https://codecov.io/gh/codecov/go-server/branch/master/graph/badge.svg?token=tNKcOjlxLo)](https://codecov.io/gh/codecov/go-server)
+[![codecov](https://codecov.io/gh/Knoblauchpilze/go-server/branch/master/graph/badge.svg?token=T0AX4BIS85)](https://codecov.io/gh/Knoblauchpilze/go-server)
