@@ -29,3 +29,11 @@ func generateHttpResponse() *http.Response {
 		Body: io.NopCloser(bytes.NewReader([]byte("some data"))),
 	}
 }
+
+func nilRequestHttpBuilder(ri *requestImpl) (*http.Request, error) {
+	return nil, nil
+}
+
+func errorHttpBuilder(ri *requestImpl) (*http.Request, error) {
+	return &http.Request{}, errSomeError
+}
