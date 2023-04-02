@@ -154,6 +154,7 @@ func TestGenerateAuthenticationContext_NoTokenForUser(t *testing.T) {
 
 	id := uuid.MustParse("74b02b94-ca64-11ed-ba48-18c04d0e6a41")
 	s := newMockServer("haha")
+	s.auth.isError = true
 
 	hdr := fmt.Sprintf("bearer user=%s token=45", id)
 	s.withAuthorization(hdr)

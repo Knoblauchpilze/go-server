@@ -62,3 +62,20 @@ func TestHttpPostRequest_BodyPassed(t *testing.T) {
 	assert.Nil(err)
 	assert.Equal("\"some data\"", string(out))
 }
+
+func TestHttpPostRequest_UnmarshallableBody(t *testing.T) {
+	assert := assert.New(t)
+
+	mc := &mockHttpClient{}
+	url := "http://dummy-url"
+
+	rb := NewHttpPostRequestBuilder()
+	rb.SetUrl(url)
+	rb.SetBody("kiki", unmarshallableContent{})
+	rb.setHttpClient(mc)
+	rw, err := rb.Build()
+	assert.Nil(err)
+
+	_, err = rw.Perform()
+	assert.NotNil(err)
+}
