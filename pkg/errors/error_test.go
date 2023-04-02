@@ -92,7 +92,6 @@ func TestError_WrapCodeInvalidCode(t *testing.T) {
 	assert.Equal(errSomeError, impl.Cause)
 	assert.True(impl.hasCode)
 	assert.Equal(lastErrorCode, impl.Value)
-
 }
 
 func TestError_Wrapf(t *testing.T) {
@@ -109,7 +108,10 @@ func TestError_Wrapf(t *testing.T) {
 func TestError_Unwrap(t *testing.T) {
 	assert := assert.New(t)
 
-	err := Unwrap(errSomeError)
+	err := Unwrap(nil)
+	assert.Nil(err)
+
+	err = Unwrap(errSomeError)
 	assert.Nil(err)
 
 	err = New("haha")
