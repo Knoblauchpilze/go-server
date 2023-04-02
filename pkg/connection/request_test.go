@@ -7,6 +7,44 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestRequest_Perform_BuilderError(t *testing.T) {
+	assert := assert.New(t)
+
+	mc := &mockHttpClient{
+		expectedError: nil,
+		expectedResp:  nil,
+	}
+
+	rb := newRequestBuilder()
+	rb.SetUrl("haha")
+	rb.setHttpClient(mc)
+	rb.setHttpRequestBuilder(errorHttpBuilder)
+	rw, err := rb.Build()
+	assert.Nil(err)
+
+	_, err = rw.Perform()
+	assert.NotNil(err)
+}
+
+func TestRequest_Perform_BuilderInvalid(t *testing.T) {
+	assert := assert.New(t)
+
+	mc := &mockHttpClient{
+		expectedError: nil,
+		expectedResp:  nil,
+	}
+
+	rb := newRequestBuilder()
+	rb.SetUrl("haha")
+	rb.setHttpClient(mc)
+	rb.setHttpRequestBuilder(nilRequestHttpBuilder)
+	rw, err := rb.Build()
+	assert.Nil(err)
+
+	_, err = rw.Perform()
+	assert.NotNil(err)
+}
+
 func TestRequest_Perform_ClientErrorReceived(t *testing.T) {
 	assert := assert.New(t)
 
