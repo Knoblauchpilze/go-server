@@ -9,12 +9,17 @@ import (
 	"github.com/KnoblauchPilze/go-server/pkg/errors"
 )
 
-func NewPostRequest(url string, headers http.Header, contentType string, body interface{}) RequestWrapper {
+func NewPostRequest(url string, headers http.Header, contentType string, body interface{}) (RequestWrapper, error) {
+	rb := newRequestBuilder()
+	rb.setUrl(url)
+	rb.setHeaders(headers)
+
 	builder := func(ri *requestImpl) (*http.Request, error) {
 		return buildPostRequest(ri, contentType, body)
 	}
+	rb.setHttpRequestBuilder(builder)
 
-	return newRequest(url, headers, builder)
+	return rb.build()
 }
 
 func buildPostRequest(ri *requestImpl, contentType string, body interface{}) (*http.Request, error) {

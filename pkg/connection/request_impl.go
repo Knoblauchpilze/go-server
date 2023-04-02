@@ -6,30 +6,13 @@ import (
 	"github.com/KnoblauchPilze/go-server/pkg/errors"
 )
 
-type requestBuilder func(ri *requestImpl) (*http.Request, error)
+type httpRequestBuilder func(ri *requestImpl) (*http.Request, error)
 
 type requestImpl struct {
 	url     string
 	headers http.Header
-	builder requestBuilder
-}
-
-func newRequest(url string, headers http.Header, builder requestBuilder) RequestWrapper {
-	return &requestImpl{
-		url:     url,
-		headers: headers,
-		builder: builder,
-	}
-}
-
-func (ri *requestImpl) WithUrl(url string) RequestWrapper {
-	ri.url = url
-	return ri
-}
-
-func (ri *requestImpl) WithHeaders(headers http.Header) RequestWrapper {
-	ri.headers = headers
-	return ri
+	builder httpRequestBuilder
+	client  HttpClient
 }
 
 func (ri *requestImpl) Perform() (*http.Response, error) {
