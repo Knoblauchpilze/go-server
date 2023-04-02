@@ -9,14 +9,6 @@ import (
 
 var errSomeError = fmt.Errorf("some error")
 
-func nilRequestHttpRequestBuilder(ri *requestImpl) (*http.Request, error) {
-	return nil, nil
-}
-
-func errorHttpRequestBuilder(ri *requestImpl) (*http.Request, error) {
-	return nil, errSomeError
-}
-
 type mockHttpClient struct {
 	inReq         *http.Request
 	expectedResp  *http.Response
