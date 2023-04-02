@@ -11,7 +11,7 @@ import (
 
 type RequestData struct {
 	Id       uuid.UUID
-	Response rest.Response
+	Response rest.ResponseBuilder
 }
 
 var requestDataKey stringDataKeyType = "requestData"

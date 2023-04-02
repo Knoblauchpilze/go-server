@@ -10,12 +10,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type Response interface {
-	Pass() Response
-	Fail() Response
+type ResponseBuilder interface {
+	Pass() ResponseBuilder
+	Fail() ResponseBuilder
 
-	WithDetails(details interface{}) Response
-	WithCode(httpCode int) Response
+	WithDetails(details interface{}) ResponseBuilder
+	WithCode(httpCode int) ResponseBuilder
 
 	Write(w http.ResponseWriter)
 }
@@ -30,7 +30,7 @@ type responseImpl struct {
 var StatusOK = "SUCCESS"
 var StatusNOK = "ERROR"
 
-func NewSuccessResponse(id uuid.UUID) Response {
+func NewSuccessResponse(id uuid.UUID) ResponseBuilder {
 	return &responseImpl{
 		RequestId: id,
 		Status:    StatusOK,
@@ -38,7 +38,7 @@ func NewSuccessResponse(id uuid.UUID) Response {
 	}
 }
 
-func NewErrorResponse(id uuid.UUID) Response {
+func NewErrorResponse(id uuid.UUID) ResponseBuilder {
 	return &responseImpl{
 		RequestId: id,
 		Status:    StatusNOK,
@@ -46,17 +46,17 @@ func NewErrorResponse(id uuid.UUID) Response {
 	}
 }
 
-func (ri *responseImpl) Pass() Response {
+func (ri *responseImpl) Pass() ResponseBuilder {
 	ri.Status = StatusOK
 	return ri
 }
 
-func (ri *responseImpl) Fail() Response {
+func (ri *responseImpl) Fail() ResponseBuilder {
 	ri.Status = StatusNOK
 	return ri
 }
 
-func (ri *responseImpl) WithDetails(details interface{}) Response {
+func (ri *responseImpl) WithDetails(details interface{}) ResponseBuilder {
 	var out []byte
 	var err error
 
@@ -71,7 +71,7 @@ func (ri *responseImpl) WithDetails(details interface{}) Response {
 	return ri
 }
 
-func (ri *responseImpl) WithCode(httpCode int) Response {
+func (ri *responseImpl) WithCode(httpCode int) ResponseBuilder {
 	ri.code = httpCode
 	if ri.code != http.StatusOK {
 		return ri.Fail()
