@@ -14,7 +14,7 @@ type requestImpl struct {
 	builder requestBuilder
 }
 
-func newRequest(url string, headers http.Header, builder requestBuilder) Request {
+func newRequest(url string, headers http.Header, builder requestBuilder) RequestWrapper {
 	return &requestImpl{
 		url:     url,
 		headers: headers,
@@ -22,12 +22,12 @@ func newRequest(url string, headers http.Header, builder requestBuilder) Request
 	}
 }
 
-func (ri *requestImpl) WithUrl(url string) Request {
+func (ri *requestImpl) WithUrl(url string) RequestWrapper {
 	ri.url = url
 	return ri
 }
 
-func (ri *requestImpl) WithHeaders(headers http.Header) Request {
+func (ri *requestImpl) WithHeaders(headers http.Header) RequestWrapper {
 	ri.headers = headers
 	return ri
 }

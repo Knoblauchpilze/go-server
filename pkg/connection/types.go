@@ -2,8 +2,6 @@ package connection
 
 import "net/http"
 
-type Request interface {
-	WithUrl(url string) Request
-	WithHeaders(headers http.Header) Request
+type RequestWrapper interface {
 	Perform() (*http.Response, error)
 }

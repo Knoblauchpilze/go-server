@@ -6,7 +6,7 @@ import (
 	"github.com/KnoblauchPilze/go-server/pkg/errors"
 )
 
-func NewGetRequest(url string, headers http.Header) Request {
+func NewGetRequest(url string, headers http.Header) RequestWrapper {
 	return newRequest(url, headers, buildGetRequest)
 }
 
