@@ -1,5 +1,5 @@
 name: Go
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -15,5 +15,9 @@ jobs:
         run: go get ./...
       - name: Build
         run: go build -v ./...
-      - name: Test with the Go CLI
-        run: go test ./...
+      - name: Run tests with the Go CLI
+        run: go test ./... -race -covermode=atomic -coverprofile=coverage.out
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+
+
