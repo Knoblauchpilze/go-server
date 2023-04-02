@@ -8,31 +8,20 @@ import (
 	"github.com/google/uuid"
 )
 
-type Token struct {
-	User       uuid.UUID
-	Value      string
-	Expiration time.Time
-}
-
-type Auth interface {
-	GenerateToken(user uuid.UUID, password string) (Token, error)
-	GetToken(user uuid.UUID) (Token, error)
-}
-
-type AuthImpl struct {
+type authImpl struct {
 	lock   sync.Mutex
 	tokens map[uuid.UUID]Token
 }
 
 var TokenDefaultExpirationTime = 10 * time.Minute
 
-func NewAuth() Auth {
-	return &AuthImpl{
+func NewAuthenticater() Authenticater {
+	return &authImpl{
 		tokens: make(map[uuid.UUID]Token),
 	}
 }
 
-func (auth *AuthImpl) GenerateToken(user uuid.UUID, password string) (Token, error) {
+func (auth *authImpl) GenerateToken(user uuid.UUID, password string) (Token, error) {
 	if len(password) == 0 {
 		return Token{}, errors.NewCode(errors.ErrInvalidPassword)
 	}
@@ -55,7 +44,7 @@ func (auth *AuthImpl) GenerateToken(user uuid.UUID, password string) (Token, err
 	return token, nil
 }
 
-func (auth *AuthImpl) GetToken(user uuid.UUID) (Token, error) {
+func (auth *authImpl) GetToken(user uuid.UUID) (Token, error) {
 	auth.lock.Lock()
 	defer auth.lock.Unlock()
 
