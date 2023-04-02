@@ -7,35 +7,22 @@ import (
 	"github.com/google/uuid"
 )
 
-type User struct {
-	Id       uuid.UUID
-	Name     string
-	Password string
-}
-
-type UserDb interface {
-	AddUser(name string, password string) (uuid.UUID, error)
-	GetUser(id uuid.UUID) (User, error)
-	GetUserFromName(name string) (User, error)
-	GetUsers() []uuid.UUID
-}
-
-type UserDbImpl struct {
+type userDbImpl struct {
 	lock  sync.Mutex
 	users map[string]string
 	ids   map[uuid.UUID]string
 	names map[string]uuid.UUID
 }
 
-func NewUserDb() UserDb {
-	return &UserDbImpl{
+func NewUserManager() UserManager {
+	return &userDbImpl{
 		users: make(map[string]string),
 		ids:   make(map[uuid.UUID]string),
 		names: make(map[string]uuid.UUID),
 	}
 }
 
-func (udb *UserDbImpl) AddUser(name string, password string) (uuid.UUID, error) {
+func (udb *userDbImpl) AddUser(name string, password string) (uuid.UUID, error) {
 	if len(name) == 0 {
 		return uuid.UUID{}, errors.NewCode(errors.ErrInvalidUserName)
 	}
@@ -62,7 +49,7 @@ func (udb *UserDbImpl) AddUser(name string, password string) (uuid.UUID, error) 
 	return id, nil
 }
 
-func (udb *UserDbImpl) GetUser(id uuid.UUID) (User, error) {
+func (udb *userDbImpl) GetUser(id uuid.UUID) (User, error) {
 	udb.lock.Lock()
 	defer udb.lock.Unlock()
 
@@ -86,7 +73,7 @@ func (udb *UserDbImpl) GetUser(id uuid.UUID) (User, error) {
 	return user, nil
 }
 
-func (udb *UserDbImpl) GetUserFromName(name string) (User, error) {
+func (udb *userDbImpl) GetUserFromName(name string) (User, error) {
 	user := User{
 		Name: name,
 	}
@@ -114,7 +101,7 @@ func (udb *UserDbImpl) GetUserFromName(name string) (User, error) {
 	return user, nil
 }
 
-func (udb *UserDbImpl) GetUsers() []uuid.UUID {
+func (udb *userDbImpl) GetUsers() []uuid.UUID {
 	udb.lock.Lock()
 	defer udb.lock.Unlock()
 
