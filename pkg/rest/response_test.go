@@ -111,6 +111,30 @@ func TestResponse_WithDetails(t *testing.T) {
 	assert.Equal(expected, string(mrw.data))
 }
 
+func TestResponse_WithDetails_Invalid(t *testing.T) {
+	assert := assert.New(t)
+
+	id := uuid.MustParse(dummyId)
+	mrw := mockResponseWriter{}
+
+	resp := NewSuccessResponse(id)
+	resp.WithDetails(unmarshallableContent{})
+	resp.Write(&mrw)
+
+	expected := fmt.Sprintf("{\"RequestId\":\"%s\",\"Status\":\"%v\"}", dummyId, StatusOK)
+	assert.Equal(expected, string(mrw.data))
+
+	test := foo{
+		Bar: "haha",
+		Baz: -23,
+	}
+	resp.WithDetails(test)
+	resp.Write(&mrw)
+
+	expected = fmt.Sprintf("{\"RequestId\":\"%s\",\"Status\":\"%v\",\"Details\":{\"Bar\":\"haha\",\"Baz\":-23}}", dummyId, StatusOK)
+	assert.Equal(expected, string(mrw.data))
+}
+
 func TestResponse_WithCode(t *testing.T) {
 	assert := assert.New(t)
 
@@ -198,6 +222,19 @@ func TestGetBodyFromHttpResponseAs_NoBody(t *testing.T) {
 	resp := http.Response{
 		StatusCode: http.StatusOK,
 	}
+	resp.Body = nil
+
+	var in foo
+	err := GetBodyFromHttpResponseAs(&resp, &in)
+	assert.True(errors.IsErrorWithCode(err, errors.ErrFailedToGetBody))
+}
+
+func TestGetBodyFromHttpResponseAs_ErrBody(t *testing.T) {
+	assert := assert.New(t)
+
+	resp := http.Response{
+		StatusCode: http.StatusOK,
+	}
 	resp.Body = &mockBody{}
 
 	var in foo
@@ -217,6 +254,18 @@ func TestGetBodyFromHttpResponseAs_InvalidBody(t *testing.T) {
 	resp = generateResponseWithBody("invalid")
 	err = GetBodyFromHttpResponseAs(resp, &in)
 	assert.True(errors.IsErrorWithCode(err, errors.ErrBodyParsingFailed))
+}
+
+func TestGetBodyFromHttpResponseAs_ErrResponse(t *testing.T) {
+	assert := assert.New(t)
+
+	in := foo{Bar: "bb", Baz: 12}
+	resp := generateResponseWithBody(in)
+	resp.StatusCode = http.StatusBadRequest
+
+	var out foo
+	err := GetBodyFromHttpResponseAs(resp, &out)
+	assert.True(errors.IsErrorWithCode(err, errors.ErrResponseIsError))
 }
 
 func TestGetBodyFromHttpResponseAs(t *testing.T) {

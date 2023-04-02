@@ -40,3 +40,9 @@ func (mrw *mockResponseWriter) Write(out []byte) (int, error) {
 func (mrw *mockResponseWriter) WriteHeader(statusCode int) {
 	mrw.code = statusCode
 }
+
+type unmarshallableContent struct{}
+
+func (uc unmarshallableContent) MarshalJSON() ([]byte, error) {
+	return []byte{}, errSomeError
+}
