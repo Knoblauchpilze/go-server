@@ -28,7 +28,10 @@ func (si *sessionImpl) SignUp(in types.UserData) error {
 	var out types.SignUpResponse
 
 	url := fmt.Sprintf("%s/signup", serverURL)
-	req := connection.NewPostRequest(url, http.Header{}, "application/json", in)
+	req, err := connection.NewPostRequest(url, http.Header{}, "application/json", in)
+	if err != nil {
+		return err
+	}
 	resp, err := req.Perform()
 	if err != nil {
 		return err
@@ -49,7 +52,10 @@ func (si *sessionImpl) Login(in types.UserData) error {
 	var out types.LoginResponse
 
 	url := fmt.Sprintf("%s/login", serverURL)
-	req := connection.NewPostRequest(url, http.Header{}, "application/json", in)
+	req, err := connection.NewPostRequest(url, http.Header{}, "application/json", in)
+	if err != nil {
+		return err
+	}
 	resp, err := req.Perform()
 	if err != nil {
 		return err
@@ -94,7 +100,10 @@ func (si *sessionImpl) ListUsers() ([]uuid.UUID, error) {
 		"Authorization": {auth},
 	}
 
-	req := connection.NewGetRequest(listUsersURL, headers)
+	req, err := connection.NewGetRequest(listUsersURL, headers)
+	if err != nil {
+		return out, err
+	}
 	resp, err := req.Perform()
 	if err != nil {
 		return out, err
@@ -122,7 +131,10 @@ func (si *sessionImpl) ListUser(id uuid.UUID) (users.User, error) {
 		"Authorization": {auth},
 	}
 
-	req := connection.NewGetRequest(listUserURL, headers)
+	req, err := connection.NewGetRequest(listUserURL, headers)
+	if err != nil {
+		return out, err
+	}
 	resp, err := req.Perform()
 	if err != nil {
 		return out, err
