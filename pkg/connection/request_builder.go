@@ -6,36 +6,47 @@ import (
 	"github.com/KnoblauchPilze/go-server/pkg/errors"
 )
 
-type requestBuilder struct {
+type RequestBuilder struct {
 	url     string
 	headers http.Header
 	builder httpRequestBuilder
+	body    interface{}
 	client  HttpClient
 }
 
-func newRequestBuilder() *requestBuilder {
-	return &requestBuilder{
-		client: &http.Client{},
+func newRequestBuilder() *RequestBuilder {
+	return &RequestBuilder{
+		headers: make(http.Header),
+		client:  &http.Client{},
 	}
 }
 
-func (rb *requestBuilder) setUrl(url string) {
+func (rb *RequestBuilder) SetUrl(url string) {
 	rb.url = url
 }
 
-func (rb *requestBuilder) setHeaders(headers http.Header) {
+func (rb *RequestBuilder) SetHeaders(headers http.Header) {
 	rb.headers = headers
 }
 
-func (rb *requestBuilder) setHttpRequestBuilder(builder httpRequestBuilder) {
+func (rb *RequestBuilder) AddHeader(key string, value []string) {
+	rb.headers[key] = value
+}
+
+func (rb *RequestBuilder) SetBody(contentType string, body interface{}) {
+	rb.body = body
+	rb.AddHeader("Content-Type", []string{contentType})
+}
+
+func (rb *RequestBuilder) setHttpRequestBuilder(builder httpRequestBuilder) {
 	rb.builder = builder
 }
 
-func (rb *requestBuilder) setHttpClient(client HttpClient) {
+func (rb *RequestBuilder) setHttpClient(client HttpClient) {
 	rb.client = client
 }
 
-func (rb *requestBuilder) build() (RequestWrapper, error) {
+func (rb *RequestBuilder) Build() (RequestWrapper, error) {
 	if len(rb.url) == 0 {
 		return nil, errors.New("invalid url for request")
 	}
@@ -47,6 +58,7 @@ func (rb *requestBuilder) build() (RequestWrapper, error) {
 		url:     rb.url,
 		headers: rb.headers,
 		builder: rb.builder,
+		body:    rb.body,
 		client:  rb.client,
 	}
 

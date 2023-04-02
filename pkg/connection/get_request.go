@@ -6,13 +6,10 @@ import (
 	"github.com/KnoblauchPilze/go-server/pkg/errors"
 )
 
-func NewGetRequest(url string, headers http.Header) (RequestWrapper, error) {
+func NewHttpGetRequestBuilder() *RequestBuilder {
 	rb := newRequestBuilder()
-	rb.setUrl(url)
-	rb.setHeaders(headers)
 	rb.setHttpRequestBuilder(buildGetRequest)
-
-	return rb.build()
+	return rb
 }
 
 func buildGetRequest(ri *requestImpl) (*http.Request, error) {
