@@ -12,7 +12,7 @@ import (
 func TestAddUser_InvalidName(t *testing.T) {
 	assert := assert.New(t)
 
-	udb := NewUserDb()
+	udb := NewUserManager()
 	_, err := udb.AddUser("", "")
 	assert.True(errors.IsErrorWithCode(err, errors.ErrInvalidUserName))
 }
@@ -20,7 +20,7 @@ func TestAddUser_InvalidName(t *testing.T) {
 func TestAddUser_InvalidPassword(t *testing.T) {
 	assert := assert.New(t)
 
-	udb := NewUserDb()
+	udb := NewUserManager()
 	_, err := udb.AddUser("foo", "")
 	assert.True(errors.IsErrorWithCode(err, errors.ErrInvalidPassword))
 }
@@ -28,7 +28,7 @@ func TestAddUser_InvalidPassword(t *testing.T) {
 func TestAddUser(t *testing.T) {
 	assert := assert.New(t)
 
-	udb := NewUserDb()
+	udb := NewUserManager()
 	id, err := udb.AddUser("foo", "haha")
 	assert.Nil(err)
 
@@ -40,7 +40,7 @@ func TestAddUser(t *testing.T) {
 func TestAddUser_Duplicated(t *testing.T) {
 	assert := assert.New(t)
 
-	udb := NewUserDb()
+	udb := NewUserManager()
 	_, err := udb.AddUser("foo", "haha")
 	assert.Nil(err)
 
@@ -51,7 +51,7 @@ func TestAddUser_Duplicated(t *testing.T) {
 func TestGetUsers(t *testing.T) {
 	assert := assert.New(t)
 
-	udb := NewUserDb()
+	udb := NewUserManager()
 
 	ids := udb.GetUsers()
 	assert.Equal(0, len(ids))
@@ -66,7 +66,7 @@ func TestGetUsers(t *testing.T) {
 func TestGetUser_NoUsers(t *testing.T) {
 	assert := assert.New(t)
 
-	udb := NewUserDb()
+	udb := NewUserManager()
 
 	wrongId := uuid.New()
 	_, err := udb.GetUser(wrongId)
@@ -76,7 +76,7 @@ func TestGetUser_NoUsers(t *testing.T) {
 func TestGetUser_WrongId(t *testing.T) {
 	assert := assert.New(t)
 
-	udb := NewUserDb()
+	udb := NewUserManager()
 	udb.AddUser("foo", "haha")
 
 	wrongId := uuid.New()
@@ -87,7 +87,7 @@ func TestGetUser_WrongId(t *testing.T) {
 func TestGetUser(t *testing.T) {
 	assert := assert.New(t)
 
-	udb := NewUserDb()
+	udb := NewUserManager()
 	id, _ := udb.AddUser("foo", "haha")
 
 	user, err := udb.GetUser(id)
@@ -101,7 +101,7 @@ func TestGetUser(t *testing.T) {
 func TestGetUserFromName_NoUsers(t *testing.T) {
 	assert := assert.New(t)
 
-	udb := NewUserDb()
+	udb := NewUserManager()
 
 	_, err := udb.GetUserFromName("foo")
 	assert.True(errors.IsErrorWithCode(err, errors.ErrNoSuchUser))
@@ -110,7 +110,7 @@ func TestGetUserFromName_NoUsers(t *testing.T) {
 func TestGetUserFromname_WrongName(t *testing.T) {
 	assert := assert.New(t)
 
-	udb := NewUserDb()
+	udb := NewUserManager()
 	udb.AddUser("foo", "haha")
 
 	_, err := udb.GetUserFromName("")
@@ -123,7 +123,7 @@ func TestGetUserFromname_WrongName(t *testing.T) {
 func TestGetUserFromName(t *testing.T) {
 	assert := assert.New(t)
 
-	udb := NewUserDb()
+	udb := NewUserManager()
 	id, _ := udb.AddUser("foo", "haha")
 
 	user, err := udb.GetUserFromName("foo")

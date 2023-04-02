@@ -15,7 +15,7 @@ var UsersURLRoute = "/users"
 
 var userIdDataKey = "user"
 
-func UsersRouter(udb users.UserDb, tokens auth.Auth) http.Handler {
+func UsersRouter(udb users.UserManager, tokens auth.Auth) http.Handler {
 	r := chi.NewRouter()
 
 	r.Route("/", func(r chi.Router) {
@@ -30,7 +30,7 @@ func UsersRouter(udb users.UserDb, tokens auth.Auth) http.Handler {
 	return r
 }
 
-func generateListUsersHandler(udb users.UserDb) http.HandlerFunc {
+func generateListUsersHandler(udb users.UserManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		reqData, ok := middlewares.GetRequestDataFromContextOrFail(w, r)
 		if !ok {
@@ -42,7 +42,7 @@ func generateListUsersHandler(udb users.UserDb) http.HandlerFunc {
 	}
 }
 
-func generateUsersHandler(udb users.UserDb) http.HandlerFunc {
+func generateUsersHandler(udb users.UserManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		reqData, ok := middlewares.GetRequestDataFromContextOrFail(w, r)
 		if !ok {

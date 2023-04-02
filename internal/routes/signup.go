@@ -12,7 +12,7 @@ import (
 
 var SignUpURLRoute = "/signup"
 
-func SignUpRouter(udb users.UserDb) http.Handler {
+func SignUpRouter(udb users.UserManager) http.Handler {
 	r := chi.NewRouter()
 
 	r.Route("/", func(r chi.Router) {
@@ -23,7 +23,7 @@ func SignUpRouter(udb users.UserDb) http.Handler {
 	return r
 }
 
-func generateSignUpHandler(udb users.UserDb) http.HandlerFunc {
+func generateSignUpHandler(udb users.UserManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		reqData, ok := middlewares.GetRequestDataFromContextOrFail(w, r)
 		if !ok {
@@ -49,7 +49,7 @@ func generateSignUpHandler(udb users.UserDb) http.HandlerFunc {
 	}
 }
 
-func signUpUser(ud types.UserData, udb users.UserDb) (types.SignUpResponse, error) {
+func signUpUser(ud types.UserData, udb users.UserManager) (types.SignUpResponse, error) {
 	var err error
 	var out types.SignUpResponse
 
