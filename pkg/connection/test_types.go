@@ -1,7 +1,9 @@
 package connection
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"net/http"
 )
 
@@ -24,4 +26,14 @@ type mockHttpClient struct {
 func (mc *mockHttpClient) Do(req *http.Request) (*http.Response, error) {
 	mc.inReq = req
 	return mc.expectedResp, mc.expectedError
+}
+
+func generateHttpResponse() *http.Response {
+	return &http.Response{
+		StatusCode: http.StatusAlreadyReported,
+		Header: http.Header{
+			"haha": []string{"gigi"},
+		},
+		Body: io.NopCloser(bytes.NewReader([]byte("some data"))),
+	}
 }

@@ -1,67 +1,44 @@
 package connection
 
 import (
-	"bytes"
-	"io"
 	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHttpGetRequestBuilder_Fail(t *testing.T) {
+func TestHttpGetRequest_UrlReached(t *testing.T) {
 	assert := assert.New(t)
 
-	mc := &mockHttpClient{
-		expectedError: errSomeError,
-		expectedResp:  nil,
-	}
-	headers := http.Header{
-		"hihi": []string{"haha"},
-	}
+	mc := &mockHttpClient{}
+	url := "http://dummy-url"
 
 	rb := NewHttpGetRequestBuilder()
-	rb.SetUrl("haha")
-	rb.SetHeaders(headers)
+	rb.SetUrl(url)
 	rb.setHttpClient(mc)
 	rw, err := rb.Build()
 	assert.Nil(err)
 
-	resp, err := rw.Perform()
-	assert.Equal(mc.expectedResp, resp)
-	assert.Equal(mc.expectedError, err)
-	assert.Equal(headers, mc.inReq.Header)
+	rw.Perform()
+	assert.Equal(url, mc.inReq.URL.String())
 }
 
-func TestHttpGetRequestBuilder_Success(t *testing.T) {
+func TestHttpGetRequest_HeadersPassed(t *testing.T) {
 	assert := assert.New(t)
 
-	mc := &mockHttpClient{
-		expectedError: nil,
-		expectedResp: &http.Response{
-			StatusCode: http.StatusResetContent,
-			Header: http.Header{
-				"juju": []string{"koko"},
-			},
-			Body: io.NopCloser(bytes.NewReader([]byte{32})),
-		},
-	}
+	mc := &mockHttpClient{}
+	url := "http://dummy-url"
 	headers := http.Header{
-		"hihi": []string{"haha"},
+		"haha": []string{"jaja"},
 	}
 
 	rb := NewHttpGetRequestBuilder()
-	rb.SetUrl("haha")
+	rb.SetUrl(url)
 	rb.SetHeaders(headers)
 	rb.setHttpClient(mc)
 	rw, err := rb.Build()
 	assert.Nil(err)
 
-	resp, err := rw.Perform()
-	assert.Equal(mc.expectedResp, resp)
-	assert.Equal(mc.expectedError, err)
+	rw.Perform()
 	assert.Equal(headers, mc.inReq.Header)
-	out, err := io.ReadAll(resp.Body)
-	assert.Equal([]byte{32}, out)
-	assert.Nil(err)
 }
