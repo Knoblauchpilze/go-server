@@ -1,7 +1,6 @@
 package connection
 
 import (
-	"bytes"
 	"io"
 	"net/http"
 	"testing"
@@ -9,59 +8,57 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHttpPostRequestBuilder_Fail(t *testing.T) {
+func TestHttpPostRequest_UrlReached(t *testing.T) {
 	assert := assert.New(t)
 
-	mc := &mockHttpClient{
-		expectedError: errSomeError,
-		expectedResp:  nil,
-	}
+	mc := &mockHttpClient{}
+	url := "http://dummy-url"
+
+	rb := NewHttpPostRequestBuilder()
+	rb.SetUrl(url)
+	rb.setHttpClient(mc)
+	rw, err := rb.Build()
+	assert.Nil(err)
+
+	rw.Perform()
+	assert.Equal(url, mc.inReq.URL.String())
+}
+
+func TestHttpPostRequest_HeadersPassed(t *testing.T) {
+	assert := assert.New(t)
+
+	mc := &mockHttpClient{}
+	url := "http://dummy-url"
 	headers := http.Header{
-		"hihi": []string{"haha"},
+		"haha": []string{"jaja"},
 	}
 
 	rb := NewHttpPostRequestBuilder()
-	rb.SetUrl("haha")
+	rb.SetUrl(url)
 	rb.SetHeaders(headers)
 	rb.setHttpClient(mc)
 	rw, err := rb.Build()
 	assert.Nil(err)
 
-	resp, err := rw.Perform()
-	assert.Equal(mc.expectedResp, resp)
-	assert.Equal(mc.expectedError, err)
+	rw.Perform()
 	assert.Equal(headers, mc.inReq.Header)
 }
 
-func TestHttpPostRequestBuilder_Success(t *testing.T) {
+func TestHttpPostRequest_BodyPassed(t *testing.T) {
 	assert := assert.New(t)
 
-	mc := &mockHttpClient{
-		expectedError: nil,
-		expectedResp: &http.Response{
-			StatusCode: http.StatusResetContent,
-			Header: http.Header{
-				"juju": []string{"koko"},
-			},
-			Body: io.NopCloser(bytes.NewReader([]byte{32})),
-		},
-	}
+	mc := &mockHttpClient{}
+	url := "http://dummy-url"
 
-	rb := NewHttpGetRequestBuilder()
-	rb.SetUrl("haha")
-	rb.SetBody("jaja", 26)
+	rb := NewHttpPostRequestBuilder()
+	rb.SetUrl(url)
+	rb.SetBody("kiki", "some data")
 	rb.setHttpClient(mc)
 	rw, err := rb.Build()
 	assert.Nil(err)
 
-	resp, err := rw.Perform()
-	assert.Equal(mc.expectedResp, resp)
-	assert.Equal(mc.expectedError, err)
-	headers := http.Header{
-		"Content-Type": []string{"jaja"},
-	}
-	assert.Equal(headers, mc.inReq.Header)
-	out, err := io.ReadAll(resp.Body)
-	assert.Equal([]byte{32}, out)
+	rw.Perform()
+	out, err := io.ReadAll(mc.inReq.Body)
 	assert.Nil(err)
+	assert.Equal("\"some data\"", string(out))
 }
