@@ -1,4 +1,4 @@
-package connection
+package session
 
 import (
 	"github.com/KnoblauchPilze/go-server/pkg/auth"
@@ -9,7 +9,7 @@ import (
 
 var serverURL = "http://localhost:3000"
 
-type Session interface {
+type Manager interface {
 	SignUp(in types.UserData) error
 	Login(in types.UserData) error
 

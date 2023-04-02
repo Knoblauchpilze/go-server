@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/KnoblauchPilze/go-server/internal/connection"
+	"github.com/KnoblauchPilze/go-server/internal/session"
 	"github.com/KnoblauchPilze/go-server/pkg/types"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -33,7 +33,7 @@ func signUpCmdBody(cmd *cobra.Command, args []string) {
 
 	logrus.Infof("signing up for %+v", ud)
 
-	sess := connection.NewSession()
+	sess := session.NewManager()
 	if err := sess.SignUp(ud); err != nil {
 		logrus.Errorf("failed to sign up (%v)", err)
 		return

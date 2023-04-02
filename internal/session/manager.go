@@ -1,4 +1,4 @@
-package connection
+package session
 
 import (
 	"fmt"
@@ -14,16 +14,16 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type sessionImpl struct {
+type managerImpl struct {
 	userId uuid.UUID
 	token  auth.Token
 }
 
-func NewSession() Session {
-	return &sessionImpl{}
+func NewManager() Manager {
+	return &managerImpl{}
 }
 
-func (si *sessionImpl) SignUp(in types.UserData) error {
+func (mi *managerImpl) SignUp(in types.UserData) error {
 	var out types.SignUpResponse
 
 	signUpUrl := fmt.Sprintf("%s/signup", serverURL)
@@ -46,13 +46,13 @@ func (si *sessionImpl) SignUp(in types.UserData) error {
 		return err
 	}
 
-	si.userId = out.Id
-	logrus.Infof("Signed up with id %v", si.userId)
+	mi.userId = out.Id
+	logrus.Infof("Signed up with id %v", mi.userId)
 
 	return nil
 }
 
-func (si *sessionImpl) Login(in types.UserData) error {
+func (mi *managerImpl) Login(in types.UserData) error {
 	var out types.LoginResponse
 
 	loginUrl := fmt.Sprintf("%s/login", serverURL)
@@ -75,13 +75,13 @@ func (si *sessionImpl) Login(in types.UserData) error {
 		return err
 	}
 
-	si.token = out.Token
-	logrus.Infof("Logged in, active token is %+v", si.token)
+	mi.token = out.Token
+	logrus.Infof("Logged in, active token is %+v", mi.token)
 
 	return nil
 }
 
-func (si *sessionImpl) Authenticate(token auth.Token) error {
+func (mi *managerImpl) Authenticate(token auth.Token) error {
 	if len(token.Value) == 0 {
 		return errors.NewCode(errors.ErrNotLoggedIn)
 	}
@@ -90,17 +90,17 @@ func (si *sessionImpl) Authenticate(token auth.Token) error {
 		return errors.NewCode(errors.ErrAuthenticationExpired)
 	}
 
-	si.token = token
+	mi.token = token
 
 	return nil
 }
 
-func (si *sessionImpl) ListUsers() ([]uuid.UUID, error) {
+func (mi *managerImpl) ListUsers() ([]uuid.UUID, error) {
 	var out []uuid.UUID
 
 	listUsersURL := fmt.Sprintf("%s/users", serverURL)
 
-	auth, err := si.generateAuthenticationHeader()
+	auth, err := mi.generateAuthenticationHeader()
 	if err != nil {
 		return out, err
 	}
@@ -128,12 +128,12 @@ func (si *sessionImpl) ListUsers() ([]uuid.UUID, error) {
 	return out, nil
 }
 
-func (si *sessionImpl) ListUser(id uuid.UUID) (users.User, error) {
+func (mi *managerImpl) ListUser(id uuid.UUID) (users.User, error) {
 	var out users.User
 
 	listUserURL := fmt.Sprintf("%s/users/%s", serverURL, id)
 
-	auth, err := si.generateAuthenticationHeader()
+	auth, err := mi.generateAuthenticationHeader()
 	if err != nil {
 		return out, err
 	}
@@ -161,15 +161,15 @@ func (si *sessionImpl) ListUser(id uuid.UUID) (users.User, error) {
 	return out, nil
 }
 
-func (si *sessionImpl) generateAuthenticationHeader() (string, error) {
-	if len(si.token.Value) == 0 {
+func (mi *managerImpl) generateAuthenticationHeader() (string, error) {
+	if len(mi.token.Value) == 0 {
 		return "", errors.NewCode(errors.ErrNotLoggedIn)
 	}
-	if time.Now().After(si.token.Expiration) {
+	if time.Now().After(mi.token.Expiration) {
 		return "", errors.NewCode(errors.ErrAuthenticationExpired)
 	}
 
-	auth := fmt.Sprintf("bearer user=%v token=%v", si.token.User, si.token.Value)
+	auth := fmt.Sprintf("bearer user=%v token=%v", mi.token.User, mi.token.Value)
 
 	return auth, nil
 }

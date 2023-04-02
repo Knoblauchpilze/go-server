@@ -1,7 +1,7 @@
 package list
 
 import (
-	"github.com/KnoblauchPilze/go-server/internal/connection"
+	"github.com/KnoblauchPilze/go-server/internal/session"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -24,7 +24,7 @@ func usersCmdBody(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	sess := connection.NewSession()
+	sess := session.NewManager()
 	if err := sess.Authenticate(token); err != nil {
 		logrus.Fatalf("Failed to list users: %+v", err)
 		return
