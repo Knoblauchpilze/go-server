@@ -18,7 +18,7 @@ func main() {
 	r.Use(middleware.Recoverer)
 
 	udb := users.NewUserManager()
-	tokens := auth.NewAuth()
+	tokens := auth.NewAuthenticater()
 
 	r.Mount(routes.SignUpURLRoute, routes.SignUpRouter(udb))
 	r.Mount(routes.LoginURLRoute, routes.LoginRouter(udb, tokens))
