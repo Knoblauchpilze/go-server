@@ -2,7 +2,6 @@ package connection
 
 import (
 	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/KnoblauchPilze/go-server/pkg/auth"
@@ -27,8 +26,13 @@ func NewSession() Session {
 func (si *sessionImpl) SignUp(in types.UserData) error {
 	var out types.SignUpResponse
 
-	url := fmt.Sprintf("%s/signup", serverURL)
-	req, err := connection.NewPostRequest(url, http.Header{}, "application/json", in)
+	signUpUrl := fmt.Sprintf("%s/signup", serverURL)
+
+	rb := connection.NewHttpPostRequestBuilder()
+	rb.SetUrl(signUpUrl)
+	rb.SetBody("application/json", in)
+
+	req, err := rb.Build()
 	if err != nil {
 		return err
 	}
@@ -51,8 +55,13 @@ func (si *sessionImpl) SignUp(in types.UserData) error {
 func (si *sessionImpl) Login(in types.UserData) error {
 	var out types.LoginResponse
 
-	url := fmt.Sprintf("%s/login", serverURL)
-	req, err := connection.NewPostRequest(url, http.Header{}, "application/json", in)
+	loginUrl := fmt.Sprintf("%s/login", serverURL)
+
+	rb := connection.NewHttpPostRequestBuilder()
+	rb.SetUrl(loginUrl)
+	rb.SetBody("application/json", in)
+
+	req, err := rb.Build()
 	if err != nil {
 		return err
 	}
@@ -96,11 +105,13 @@ func (si *sessionImpl) ListUsers() ([]uuid.UUID, error) {
 		return out, err
 	}
 
-	headers := map[string][]string{
+	rb := connection.NewHttpGetRequestBuilder()
+	rb.SetUrl(listUsersURL)
+	rb.SetHeaders(map[string][]string{
 		"Authorization": {auth},
-	}
+	})
 
-	req, err := connection.NewGetRequest(listUsersURL, headers)
+	req, err := rb.Build()
 	if err != nil {
 		return out, err
 	}
@@ -127,11 +138,13 @@ func (si *sessionImpl) ListUser(id uuid.UUID) (users.User, error) {
 		return out, err
 	}
 
-	headers := map[string][]string{
+	rb := connection.NewHttpGetRequestBuilder()
+	rb.SetUrl(listUserURL)
+	rb.SetHeaders(map[string][]string{
 		"Authorization": {auth},
-	}
+	})
 
-	req, err := connection.NewGetRequest(listUserURL, headers)
+	req, err := rb.Build()
 	if err != nil {
 		return out, err
 	}

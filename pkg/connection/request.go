@@ -12,6 +12,7 @@ type requestImpl struct {
 	url     string
 	headers http.Header
 	builder httpRequestBuilder
+	body    interface{}
 	client  HttpClient
 }
 
