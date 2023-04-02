@@ -30,7 +30,9 @@ func (rb *RequestBuilder) SetHeaders(headers http.Header) {
 }
 
 func (rb *RequestBuilder) AddHeader(key string, value []string) {
-	rb.headers[key] = value
+	existing := rb.headers[key]
+	existing = append(existing, value...)
+	rb.headers[key] = existing
 }
 
 func (rb *RequestBuilder) SetBody(contentType string, body interface{}) {

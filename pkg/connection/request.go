@@ -28,9 +28,7 @@ func (ri *requestImpl) Perform() (*http.Response, error) {
 		return resp, errors.Wrap(err, "failed to build http request")
 	}
 
-	client := http.Client{}
-
-	resp, err = client.Do(req)
+	resp, err = ri.client.Do(req)
 	if err != nil {
 		return resp, err
 	}
