@@ -37,3 +37,9 @@ func nilRequestHttpBuilder(ri *requestImpl) (*http.Request, error) {
 func errorHttpBuilder(ri *requestImpl) (*http.Request, error) {
 	return &http.Request{}, errSomeError
 }
+
+type unmarshallableContent struct{}
+
+func (uc unmarshallableContent) MarshalJSON() ([]byte, error) {
+	return []byte{}, errSomeError
+}

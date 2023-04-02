@@ -28,6 +28,8 @@ const (
 	ErrPostInvalidData
 	ErrPostRequestFailed
 	ErrGetRequestFailed
+
+	lastErrorCode
 )
 
 var errorsCodeToMessage = map[ErrorCode]string{

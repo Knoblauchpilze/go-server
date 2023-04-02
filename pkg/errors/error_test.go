@@ -35,14 +35,14 @@ func TestError_NewFromCode(t *testing.T) {
 	assert.True(impl.hasCode)
 	assert.Equal(ErrInvalidUserName, impl.Value)
 
-	err = NewCode(ErrorCode(-40))
+	err = NewCode(lastErrorCode)
 
 	impl, ok = err.(errorImpl)
 	assert.True(ok)
 	assert.Equal(defaultErrorMessage, impl.Message)
 	assert.Nil(impl.Cause)
 	assert.True(impl.hasCode)
-	assert.Equal(ErrorCode(-40), impl.Value)
+	assert.Equal(lastErrorCode, impl.Value)
 }
 
 func TestError_Newf(t *testing.T) {
@@ -79,6 +79,20 @@ func TestError_WrapCode(t *testing.T) {
 	assert.Equal(errSomeError, impl.Cause)
 	assert.True(impl.hasCode)
 	assert.Equal(ErrInvalidUserName, impl.Value)
+}
+
+func TestError_WrapCodeInvalidCode(t *testing.T) {
+	assert := assert.New(t)
+
+	err := WrapCode(errSomeError, lastErrorCode)
+
+	impl, ok := err.(errorImpl)
+	assert.True(ok)
+	assert.Equal(defaultErrorMessage, impl.Message)
+	assert.Equal(errSomeError, impl.Cause)
+	assert.True(impl.hasCode)
+	assert.Equal(lastErrorCode, impl.Value)
+
 }
 
 func TestError_Wrapf(t *testing.T) {
