@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/KnoblauchPilze/go-server/internal/routes"
@@ -9,6 +8,7 @@ import (
 	"github.com/KnoblauchPilze/go-server/pkg/users"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -24,6 +24,6 @@ func main() {
 	r.Mount(routes.LoginURLRoute, routes.LoginRouter(udb, tokens))
 	r.Mount(routes.UsersURLRoute, routes.UsersRouter(udb, tokens))
 
-	fmt.Printf("Starting server on port 3000...\n")
+	logrus.Infof("Starting server on port 3000...")
 	http.ListenAndServe(":3000", r)
 }
