@@ -14,7 +14,7 @@ import (
 func TestParseAuthenticationHeader_InvalidHeader(t *testing.T) {
 	assert := assert.New(t)
 
-	genErr := errors.New("invalid authentication header")
+	genErr := errors.New(genErrMsg)
 
 	authData := ""
 	_, err := parseAuthenticationHeader(authData)
@@ -28,7 +28,7 @@ func TestParseAuthenticationHeader_InvalidHeader(t *testing.T) {
 func TestParseAuthenticationHeader_InvalidAuthenticationScheme(t *testing.T) {
 	assert := assert.New(t)
 
-	genErr := errors.New("invalid authentication header")
+	genErr := errors.New(genErrMsg)
 
 	authData := "wrong-scheme haha hihi"
 	_, err := parseAuthenticationHeader(authData)
