@@ -11,13 +11,13 @@ A toy project for a go server: used to experiment with some construct to prepare
 - Compile and install: `make`.
 - Execute any application with `make run app_name`.
 
-# Learnings
-
-## General idea
+# General idea
 
 The goal was to build a small client-server application where we could practice REST design, logging, authentication and more. The result is a very simple server where a user can sign-up, then log in and finally access to the list of users registered in the server or details about one user. These features are only available if the user is logged in.
 
 *Warning:* We didn't implement any persistent mechanism (DB or otherwise) so for now every information is only persisted in memory.
+
+# Learnings
 
 ## Router
 
