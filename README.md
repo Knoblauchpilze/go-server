@@ -60,7 +60,7 @@ func customHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Do some processing
+	// Do some processing and use reqData as needed
 }
 ```
 
@@ -84,7 +84,7 @@ An example can be found in the login handler [here](internal/routes/login.go).
 
 ### Handlers with params
 
-Another interesting point concerns creating handlers which need some arguments: the signature of the http handler is fixed, but we can use a construct like so:
+Another interesting point concerns creating handlers with access to arguments: the signature of the http handler is fixed, but we can use a construct like so:
 ```go
 func generateHandlerWithParams(foo string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -135,8 +135,8 @@ r := chi.NewRouter()
 
 r.Route("/", func(r chi.Router) {
 	r.Use(generateCustomContext("haha"))
-		r.Get("/", customHandler)
-	})
+	r.Get("/", customHandler)
+})
 ```
 
 ## Logger
@@ -149,7 +149,7 @@ This seems much more interesting than building our own logger system.
 
 Errors are usually a tricky topic. In the past we used extensively `fmt.Errorf` and provided basic wrapping with:
 ```go
-if err := opProducingErrors(); err != nil {
+if err := funcProducingErrors(); err != nil {
 	return fmt.Errorf("failed (cause: %v)", err)
 }
 ```
@@ -190,22 +190,23 @@ In order to have a structured way to interact with the server, we also spent a b
 By default the answer now looks like this in case of success:
 ```json
 {
-	"RequestId": "115ceabe-d522-11ed-984c-18c04d0e6a41",
-	"Status": "ERROR",
+	"RequestId": "16426e09-d522-11ed-984c-18c04d0e6a41",
+	"Status": "SUCCESS",
 	"Details": {
-		"Code": 1,
-		"Message": "user name is invalid"
+		"Id": "16426ecf-d522-11ed-984c-18c04d0e6a41"
 	}
 }
 ```
 
 Or in case of failure:
 ```json
+
 {
-	"RequestId": "16426e09-d522-11ed-984c-18c04d0e6a41",
-	"Status": "SUCCESS",
+	"RequestId": "115ceabe-d522-11ed-984c-18c04d0e6a41",
+	"Status": "ERROR",
 	"Details": {
-		"Id": "16426ecf-d522-11ed-984c-18c04d0e6a41"
+		"Code": 1,
+		"Message": "user name is invalid"
 	}
 }
 ```
@@ -279,7 +280,7 @@ We also started to use interfaces in general to mask certain behaviors. This lea
 
 We also set up some CI (see [PR](https://github.com/Knoblauchpilze/go-server/pull/1)), and code coverage (see [PR](https://github.com/Knoblauchpilze/go-server/pull/2)). This gives a tangible visualization of the efforts we make on testing and not breaking stuff.
 
-This was also further materialized by the badges:
+This was also further materialized by the badge:
 
 [![codecov](https://codecov.io/gh/Knoblauchpilze/go-server/branch/master/graph/badge.svg?token=T0AX4BIS85)](https://codecov.io/gh/Knoblauchpilze/go-server)
 

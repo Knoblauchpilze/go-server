@@ -86,7 +86,6 @@ func (mi *managerImpl) Authenticate(token auth.Token) error {
 		return errors.NewCode(errors.ErrNotLoggedIn)
 	}
 	if time.Now().After(token.Expiration) {
-		logrus.Infof("now: %v, token: %v", time.Now(), token.Expiration)
 		return errors.NewCode(errors.ErrAuthenticationExpired)
 	}
 
