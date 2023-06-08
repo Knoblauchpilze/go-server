@@ -244,7 +244,7 @@ Which will then automatically contact the server with an appropriate request and
 
 This automates the creation of command in a nice way and allows nesting very easily. The code can be found in the [client](cmd/client) app.
 
-It also seems like a very interesting tool especially for the [sogserver](https://github.com/Knoblauchpilze/sogserver) project where we could created universes, ship description, etc realtively easily using such a tool rather than handcrafting some requests with curl.
+It also seems like a very interesting tool especially for the [sogserver](https://github.com/Knoblauchpilze/sogserver) project where we could create universes, ship descriptions, etc realtively easily using such a tool rather than handcrafting some requests with curl.
 
 ## Authentication
 
